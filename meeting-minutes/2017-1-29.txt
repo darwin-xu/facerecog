@@ -1,0 +1,3 @@
+1. 产品介绍PPT ap: Kevin
+2. 基于face recognition项目做demo ap: Rocky
+3. 比较facenet在演示video上的两个人的特征值 ap: Darwin

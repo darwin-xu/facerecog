@@ -1,0 +1,4 @@
+1.‌ YOLO locate 人脸 ap: Rocky
+2.‌ facenet 可运行 ap: Darwin
+3.‌ 项目合作方式：设备，环境，合同，流程，公司，交付，部署安装，收费 ap: Darwin
+4.‌ gpu协议个人，机构，购买使用方式 ap: Rocky
