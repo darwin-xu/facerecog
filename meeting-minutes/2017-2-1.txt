@@ -1,0 +1,33 @@
+Agenda
+0. Trend
+   SMS      <=======
+   Eachnet  <=======
+   Takeout  <======= 2007
+   Bitcoin  <======= 2013
+   AI       <=======
+   ???
+1. Outlook
+   How many chance can we get it?
+   What if we lose it?
+     2 month....
+     gpu+rent
+   What if we get it?
+     big challenge.
+2. Strategy
+   Do we need to put more effort on AI?
+   Can we expend AI to other area.
+3. Hardware
+   Buy, use the current GPU
+   Rent
+
+pretend we've got the contract.
+
+1 0.1 facerecog poc(yolo, facenet). yolo(Darwin), facenet(Rocky)
+2 training CNN with sample.
+  Rent, (Kevin)
+
+2.1 + 2w, define the prototype of the poc.
+          review all algorithm of face recog and prepare a memo.
+
+
+Poc demo: can process on a video of sapc.
