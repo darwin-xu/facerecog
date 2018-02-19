@@ -22,18 +22,18 @@ def detectFace():
     #print("----", d)
     f1 = {
         "possibility":0.8,
-        "x1":220,
-        "y1":80,
-        "x2":240,
+        "x1":20,
+        "y1":20,
+        "x2":140,
         "y2":100,
         "name":"kevin"
     }
     f2 = {
         "possibility":0.6,
-        "x1":120,
-        "y1":40,
-        "x2":160,
-        "y2":80,
+        "x1":60,
+        "y1":60,
+        "x2":120,
+        "y2":140,
         "name":"jason"
     }
     r = {
@@ -42,3 +42,6 @@ def detectFace():
     }
     #return json.dumps(t)
     return Response(json.dumps(r), mimetype='application/json')
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', debug=True, threaded=True)
