@@ -3,20 +3,14 @@ from flask import Flask, render_template, Response
 import urllib
 import requests
 import json
-import numpy
 
 import FaceInfo
 from time import sleep
 
 import cv2
 
-# app = Flask(__name__)
 vc = cv2.VideoCapture(0)
 
-# @app.route('/')
-# def index():
-#     """Video streaming home page."""
-#     return render_template('index.html')
 
 
 def gen():
@@ -27,12 +21,9 @@ def gen():
 
     img = 't.jpg'
     cv2.imwrite(img, frame)
-    # yield (b'--frame\r\n'
-    #        b'Content-Type: image/jpeg\r\n\r\n' + open('t.jpg', 'rb').read() + b'\r\n')
 
     url = 'http://127.0.0.1:5000/detectFace'
     files = {'media': open(img, 'rb').read()}
-    # files = {'media': 'abc'}
 
     response = requests.post(url, data=files)
 
@@ -49,23 +40,23 @@ def gen():
             if (f["possibility"] < 0.8):
                 # write a rectangle in the current image.
                 pic = cv2.imread(img, cv2.IMREAD_COLOR)
-                # print(pic)
-                cv2.namedWindow('image')
-                # cv2.imshow("image", pic)
+                cv2.imshow("image", pic)
+                sleep(5)
+
                 cv2.rectangle(pic,
                               # (f["x1"], f["y1"]),
                               # (f["x2"], f["y2"]),
-                              (10, 10),
-                              (100, 100),
+                              (450, 200),
+                              (850, 600),
                               (0, 0, 255),
-                              -1)
-                # TODO: Add name on top of the rectangle
+                              3)
+                # # TODO: Add name on top of the rectangle
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(pic,
                             f["name"],
-                            (60, 60),
+                            (750, 200),
                             font,
-                            4,
+                            1,
                             (255, 255, 255),
                             2,
                             cv2.LINE_AA)
@@ -77,26 +68,17 @@ def gen():
             else:
                 print("Not match...")
 
-            sleep(5)
+            sleep(3)
 
         # faceInfo = [FaceInfo(**f) for f in result["result"]]
         # print(faceInfo)
+print("wait for finish...")
+sleep(3)
 
+gen()
 
-if cv2.waitKey(1) & 0xFF == ord('q'):
-    pass
+cv2.waitKey(0)
 
 print("relase resoure...")
-# vc.release()
-# cv2.destroyAllWindows()
-
-# @app.route('/video_feed')
-# def video_feed():
-#     """Video streaming route. Put this in the src attribute of an img tag."""
-#     return Response(gen(),
-#                     mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', debug=True, threaded=True)
-gen()
+vc.release()
+cv2.destroyAllWindows()
