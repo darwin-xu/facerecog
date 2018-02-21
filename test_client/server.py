@@ -1,8 +1,7 @@
 """Server."""
 from flask import Flask, Response, request
 import json
-# from PIL import Image
-# import numpy as np
+import os
 
 app = Flask(__name__)
 
@@ -16,31 +15,16 @@ def hello():
 @app.route("/detectFace", methods=['GET', 'POST'])
 def detectFace():
     """dectFace."""
-    # print("request.args", request.args)
-    # print("request.values", request.values)
-    # print("request.form", request.form)
+    print("Handling POST request...")
 
-    data = request.form['media']
-    b = bytes(data, "utf-8")
+    result = 'result.jpg'
 
-    with open("haha.jpg", "wb") as f:
-        f.write(b)
+    file = request.files['file']
+    if file:
+        file.save(
+            os.path.join('/Users/kevinzhong/git/facerecog/test_client/',
+                         result))
 
-    # carr = np.array([(255, 255, 255), (0, 0, 0)], dtype='uint8')
-    # output = carr[np.array(map(int, list(data)))].reshape(-1, 8, 3)
-    # img = Image.fromarray(output, 'RGB')
-    # img.save('haha.jpg', 'JPG')
-
-    # cmap = {'0': (255, 255, 255), '1': (0, 0, 0)}
-
-    # output = [cmap[letter] for letter in data]
-    # img = Image.new('RGB', (8, len(data)//8), "white")
-    # img.putdata(output)
-    # img.show()
-
-    # f = open("haha.jpg", "wb")
-    # f.write(d)
-    # print("----", d)
     f1 = {
         "possibility": 0.8,
         "x1": 45,
@@ -58,7 +42,6 @@ def detectFace():
         "name": "Kevin"
     }
     r = {"timestamp": 438787, "result": [f1, f2]}
-    # return json.dumps(t)
     return Response(json.dumps(r), mimetype='application/json')
 
 

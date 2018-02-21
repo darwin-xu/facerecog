@@ -4,6 +4,7 @@ import json
 from time import sleep
 import cv2
 import requests
+import base64
 
 vc = cv2.VideoCapture(0)
 
@@ -17,13 +18,18 @@ def gen():
     img = 't.jpg'
     cv2.imwrite(img, frame)
 
-    url = 'http://127.0.0.1:5000/detectFace'
-    files = {'media': open(img, 'rb').read()}
+    with open(img, "rb") as image_file:
+        # TODO: Encode
+        # encoded_image = base64.b64encode(image_file.read())
+        encoded_image = image_file.read()
 
-    # response = requests.post(url, data=files, mimetype='image/jpeg')
-    response = requests.post(url, data=files)
+    url = 'http://127.0.0.1:5000/detectFace'
+    files = {'file': encoded_image}
+
+    response = requests.post(url, files=files)
 
     print("get response")
+    print(response)
 
     if response.ok:
         binary = response.content
