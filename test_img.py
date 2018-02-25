@@ -40,9 +40,9 @@ def load_model(modeldir, classifier_filename):
                 print('load classifier file-> %s' % classifier_filename_exp)
                 print('class names:-> %s' % class_names)
 
-    return model, sess, class_names, pnet, rnet, onet
+    return model, sess, graph, class_names, pnet, rnet, onet
 
-def test_image(model, sess, class_names, pnet, rnet, onet, imgpath):
+def test_image(model, sess, graph, class_names, pnet, rnet, onet, imgpath):
     print(imgpath)
 
     minsize = 20  # minimum size of face
@@ -54,9 +54,9 @@ def test_image(model, sess, class_names, pnet, rnet, onet, imgpath):
 
     class_names = ['fbb','gai','pg1','zw','zzy']    #train human name
 
-    images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
-    embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
-    phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
+    images_placeholder = graph.get_tensor_by_name("input:0")
+    embeddings = graph.get_tensor_by_name("embeddings:0")
+    phase_train_placeholder = graph.get_tensor_by_name("phase_train:0")
     embedding_size = embeddings.get_shape()[1]
 
     c = 0
@@ -146,8 +146,8 @@ def test_image(model, sess, class_names, pnet, rnet, onet, imgpath):
 def main(argv=None):
     if argv is None:
         argv = sys.argv
-    model, sess, class_names, pnet, rnet, onet = load_model('models/facenet/20180220-152437', '../models/my_classifier.pkl')
-    test_image(model, sess, class_names, pnet, rnet, onet, argv[1])
+    model, sess, graph, class_names, pnet, rnet, onet = load_model('models/facenet/20180220-152437', '../models/my_classifier.pkl')
+    test_image(model, sess, graph, class_names, pnet, rnet, onet, argv[1])
 
 if __name__ == "__main__":
     sys.exit(main())

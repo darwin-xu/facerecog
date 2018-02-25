@@ -19,11 +19,10 @@ def my_exec(cmd):
 
 @app.route('/face/<string:img_path>', methods=['GET'])
 def recong_face(img_path):
-    # newimgpath = test_image(model, sess, class_names, pnet, rnet, onet, img_path)
-    return class_names#newimgpath
+    newimgpath = test_image(model, sess, graph, class_names, pnet, rnet, onet, img_path)
+    return newimgpath
 
-# model, sess, class_names, pnet, rnet, onet = load_model('models/facenet/20180220-152437', '../models/my_classifier.pkl')
-class_names = 'fk'
+model, sess, graph, class_names, pnet, rnet, onet = load_model('models/facenet/20180220-152437', '../models/my_classifier.pkl')
 
 if __name__ == '__main__':
     app.run(debug=True)
