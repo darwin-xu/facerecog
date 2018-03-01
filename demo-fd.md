@@ -1,23 +1,24 @@
 # Client
 ## Detect  mode:
-Detect the face of each frame. Search the face in the database. Put the rectangle the name of the face.
+Detect the face of each frame. Search the face in the database. Draw a rectangle surround of the face and the name under it.
 - This is the default mode.
 - App needs to capture the video from CAM (in raw data).
-- Data encoded into jpg and send to server `/fr/detectFace`.
+- Data encoded into jpg and send it to server `/detectFace`.
 - The result get from server will be used to draw a frame around the face and put a name under it.
 
 ## Register  mode:
 Take several pictures of a man. Make sure the face is large and clear.
 - A button actives the Register  mode, auto capture count down in 3 seconds.
-- In Register  mode, only one face can be shown on the preview. If there are more than one faces, the count down paused. A warning message shows.
-- App captures 30 (TBD) pictures, send to server `/fr/registerFace/{id}`.
-- And error during the register mode will abandon the data and exit the register mode, user need to start over.
+- Put a translucent mask in the preview window.
+- If there are more than one face, count down start from 3 seconds. Shows a warning messag.
+- App captures 30 (TBD) pictures, send to server `/registerFace/{id}`.
+- All error during the register mode will abandon the data and exit the register mode, user need to start over.
 
 ## Roll call mode:
 Input the roll call name list. Check the name list frame by frame. Indicate a “PASS” sign till all the names are checked.
 - A button actives the Roll call mode.
 - In checkbox/textbox inputs the name list of roll call,
-- App capture the video, encode and send to server `/fr/detectFace`.
+- App capture the video, encode and send to server `/detectFace`.
 - The result get from server will be used to draw a frame around the face and put a name under it.
 
 # Server
