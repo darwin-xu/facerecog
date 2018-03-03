@@ -1,7 +1,8 @@
 <html>
     <head>
-	      <meta name="viewport" content="width=device-width, initial-scale=0.5">
-	      <title>Face Recognition</title>
+        <meta name="viewport" content="width=device-width, initial-scale=0.5">
+        <title>Face Recognition</title>
+        <link rel="stylesheet" href="capture.css">
         <script src="jquery-3.2.1.min.js" type="text/javascript"></script>
         <script type="text/javascript" src="capture.js"></script>
         <script type="text/javascript">
@@ -12,15 +13,41 @@
 
     </head>
     <body>
-        <div>
-            <video id="video" width="640" height="480" autoplay></video>
-        </div>
-        <div>
-            <button id="register">Register</button>
-            <button id="call">Call</button>
-        </div>
-        <div>
-            <canvas id="canvas" width="640" height="480"></canvas>
+        <div class="container">
+            <header>
+                <h1>Face Recognition</h1>
+            </header>
+
+            <nav>
+                <ul>
+                    <li><a href="#">Register</a></li>
+                    <li><a href="#">Call</a></li>
+                    <li><a href="#"></a></li>
+                </ul>
+            </nav>
+            <div id="content">
+                <section>
+                    <div>
+                        <video id="video" width="640" height="480" autoplay></video>
+                    </div>
+                    <div>
+                        <button id="register">Register</button>
+                        <button id="call">Call</button>
+                    </div>
+                    <div>
+                        <canvas id="canvas" width="640" height="480"></canvas>
+                    </div>
+                </section>
+                <section>
+                    <ul>
+                        <li>Darwin</li>
+                        <li>Rocky</li>
+                        <li>Kevin</li>
+                    </ul>
+                </section>
+            </div>
+
+            <footer>Copyright 2018 &copy; Face Recognition</footer>
         </div>
     </body>
 </html>
