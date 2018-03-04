@@ -6,6 +6,8 @@ import imageio
 
 app = Flask(__name__)
 
+app.config.update(MAX_CONTENT_LENGTH=5 * 1024 * 1024)
+
 
 @app.route("/")
 def hello():
@@ -16,17 +18,22 @@ def hello():
 @app.route("/registerFace/<string:id>", methods=['GET', 'POST'])
 def registerFace(id):
     """registerFace."""
-    img_dir = "/home/kevin/"
+    img_dir = os.path.expanduser("~")
     print("Handling POST request...")
 
     result = 'result.jpg'
 
     file = request.files['file']
     if file:
-        file.save(
-            os.path.join(img_dir,
-                         result))
+        file.save(os.path.join(img_dir, result))
 
+    return Response()
+
+
+@app.route("/classifyFace", methods=['GET', 'POST'])
+def classifyFace():
+    """Classify face."""
+    print("Classify starting...")
     return Response()
 
 @app.route("/detectFace", methods=['GET', 'POST'])
@@ -50,7 +57,9 @@ def detectFace():
         "name": "Kevin"
     }
     r = {"timestamp": 438787, "result": [f1, f2]}
+
     return Response(json.dumps(r), mimetype='application/json')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, threaded=True)
