@@ -29,7 +29,7 @@ def detect_face_c():
     img = request.files['file']
     posbs, bbs, recg_ids = recong_face_c(model, sess, graph, ids, pnet, rnet, onet, img)
 
-    return make_response(jsonify(dict(generate_response(posbs, bbs, recg_ids)), 201)
+    return make_response(jsonify(generate_response(posbs, bbs, recg_ids), 201))
 
 @app.route('/detectFacesD', methods=['POST'])
 def detect_face_d():
@@ -62,11 +62,11 @@ def remove_face(id):
 
 embedding_dat_path = './embedding.dat'
 embeddings = {}
-classifier_filename = '../models/my_classifier.pkl'
+classifier_filename = 'C:\\Users\\edaiwxu\\Documents\\projects\models\\my_classifier.pkl'
 if os.path.exists(embedding_dat_path):
     with open(embedding_dat_path, 'rb') as infile:
         embeddings = pickle.load(infile)
-model, sess, graph, ids, pnet, rnet, onet = load_model('models/facenet/20180220-152437', classifier_filename)
+model, sess, graph, ids, pnet, rnet, onet = load_model('C:\\Users\\edaiwxu\\Documents\\projects\\models\\20170512-110547', classifier_filename)
 
 if __name__ == '__main__':
     app.run(debug=True)

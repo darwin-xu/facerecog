@@ -50,11 +50,12 @@ def detect():
 
 
                 draw.text(
-                    (f["x2"] - 80, f["y1"] - 10),
+                    (f["x1"], f["y2"]),
                     f["name"]
                 )
 
-                out_file="/home/kevin/Downloads/beauty/result.jpg"
+                # TODO: Get the absolute path
+                out_file="/home/kevin/Downloads/upload/result.jpg"
                 source_img.save(out_file, "JPEG")
 
                 Image.open(out_file).convert("RGBA").show()
