@@ -45,24 +45,25 @@ def load_model(modeldir, classifier_filename):
 
 def recong_face_c(model, sess, graph, ids, pnet, rnet, onet, image):
     result = encode_faces(graph, sess, pnet, rnet, onet, image)
+    # print ("the result array's shape: " + str(emb_array.shape))
     pos = []
     bbs = []
-    ids = []
+    rec_ids = []
     for r in result:
-        emb_array, bb = r
+        emb, bb = r
+        embedding_size = emb.shape[0]
+        emb_array = np.zeros((1, embedding_size))
+        emb_array[0, :] = emb
         predictions = model.predict_proba(emb_array)
+        print (predictions)
         best_class_indices = np.argmax(predictions, axis=1)
+        print (best_class_indices)
         best_class_probabilities = predictions[np.arange(len(best_class_indices)), best_class_indices]
-        pos += best_class_probabilities
-        bbs += bb
-
-        for H_i in ids:
-            if ids[best_class_indices[0]] == H_i:
-                id = ids[best_class_indices[0]]
-                print (id)
-                print (best_class_probabilities)
-                ids += id
-    return pos, bbs, ids
+        print (best_class_probabilities)
+        pos.append(best_class_probabilities[0])
+        bbs.append(bb)
+        rec_ids.append(ids[best_class_indices[0]])
+    return pos, bbs, rec_ids
 
 def encode_faces(graph, sess, pnet, rnet, onet, image):
     minsize = 20  # minimum size of face
@@ -107,19 +108,34 @@ def encode_faces(graph, sess, pnet, rnet, onet, image):
 
     return result
 
+def generate_response(posbs, bbs, recg_ids):
+    response = {}
+    response['faces'] = []
+    for i in range(len(posbs)):
+        face = {}
+        face['possibility'] = posbs[i]
+        face['x1'] = bbs[i][0]
+        face['y1'] = bbs[i][1]
+        face['x2'] = bbs[i][2]
+        face['y2'] = bbs[i][3]
+        face['id'] = recg_ids[i]
+        response['faces'].append(face)
+        
+    return response
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
-    model, sess, graph, class_names, pnet, rnet, onet = load_model('C:\\Users\\edaiwxu\\Documents\\projects\\models\\20170512-110547',
-        'C:\\Users\\edaiwxu\\Documents\\projects\\models\\my_classifier.pkl')
+    model, sess, graph, ids, pnet, rnet, onet = load_model('../models/20170511-185253', '../models/my_classifier.pkl')
     #test_image(model, sess, graph, class_names, pnet, rnet, onet, argv[1])
-    frame = cv2.imread("C:\\Users\\edaiwxu\\Downloads\\IMG_9473.jpg")
-    result = encode_faces(graph, sess, pnet, rnet, onet, frame)
-    print("faces detect:")
-    print(len(result))
-    for r in result:
-        e, box = r
-        print(len(e), box[0], box[1], box[2], box[3])
+    frame = cv2.imread('./1p.jpg')
+    print(frame.shape)
+    pos, bbs, rec_ids = recong_face_c(model, sess, graph, ids, pnet, rnet, onet, frame)
+    print(pos)
+    print(bbs)
+    print(rec_ids)
+    cv2.destroyAllWindows()
+    print(generate_response(pos, bbs, rec_ids))
 
 if __name__ == "__main__":
     sys.exit(main())
