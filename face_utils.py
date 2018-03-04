@@ -62,7 +62,7 @@ def recong_face_c(model, sess, graph, ids, pnet, rnet, onet, image):
                 print (id)
                 print (best_class_probabilities)
                 ids += id
-    return pos, bb, ids
+    return pos, bbs, ids
 
 def encode_faces(graph, sess, pnet, rnet, onet, image):
     minsize = 20  # minimum size of face
