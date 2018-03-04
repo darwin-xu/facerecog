@@ -1,13 +1,13 @@
 #!flask/bin/python
 import os.path
 from flask import Flask, jsonify
-from test_img import load_model, test_image
+from face_utils import load_model, recong_face
 
 app = Flask(__name__)
 
 @app.route('/face/<string:img_path>', methods=['GET'])
 def recong_face(img_path):
-    # newimgpath = test_image(model, sess, class_names, pnet, rnet, onet, img_path)
+    # newimgpath = recong_face(model, sess, class_names, pnet, rnet, onet, img_path)
     return img_path#newimgpath
 
 @app.route('/detectFacesC', methods=['POST'])

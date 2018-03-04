@@ -42,7 +42,7 @@ def load_model(modeldir, classifier_filename):
 
     return model, sess, graph, class_names, pnet, rnet, onet
 
-def test_image(model, sess, graph, class_names, pnet, rnet, onet, imgpath):
+def recong_face(model, sess, graph, class_names, pnet, rnet, onet, imgpath):
     print(imgpath)
 
     minsize = 20  # minimum size of face
