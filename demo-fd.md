@@ -62,8 +62,7 @@ If there are more than one face on the picture, return false.
    "result":true
 }
 ```
-## POST /classifyFace/{id}
-### param {id}: the GUID of the face to classify.
+## POST /classifyFace
 After registered a bunch of faces, call this interface to do the classify. Otherwise the /detectFacesC wouldn't work.
 ### Response: json result to indicate the result.
 ```json
