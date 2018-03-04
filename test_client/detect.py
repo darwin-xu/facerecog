@@ -20,7 +20,7 @@ def detect():
         img = sys.argv[1]
         print(img)
 
-    url_detect = 'http://127.0.0.1:5000/detectFacesC'
+    url_detect = 'http://127.0.0.1:5000/detectFace'
 
     with open(img, "rb") as imgFile:
         encoded_image = imgFile.read()
@@ -39,7 +39,7 @@ def detect():
             print(f)
             if (f["possibility"] < 0.8):
 
-                source_img = Image.open(img).convert("RGBA")
+                source_img = Image.open(img).convert("RGB")
                 draw = ImageDraw.Draw(source_img)
 
                 draw.rectangle(
@@ -55,7 +55,8 @@ def detect():
                 )
 
                 # TODO: Get the absolute path
-                out_file=os.path.expanduser("~/Downloads/upload/result.jpg")
+                #out_file=os.path.expanduser("~/Downloads/upload/result.jpg")
+                out_file=("./result.jpg")
                 source_img.save(out_file, "JPEG")
 
                 Image.open(out_file).convert("RGBA").show()
