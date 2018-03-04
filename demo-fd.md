@@ -22,9 +22,9 @@ Input the roll call name list. Check the name list frame by frame. Indicate a â€
 - The result get from server will be used to draw a frame around the face and put a name under it.
 
 # Server
-## POST /detectFaces
+## POST /detectFacesC
 ### Content: jpeg data.
-Detect the faces in the picture and return the positions and IDs of them.
+Detect the faces (SVM version) in the picture and return the positions and IDs of them.
 ### Response: json object of face list.
 ```json
 {
@@ -48,13 +48,33 @@ Detect the faces in the picture and return the positions and IDs of them.
    ]
 }
 ```
-
+## POST /detectFacesD
+Detect the faces (Norm version) in the picture and return the positions and IDs of them.
 ## POST /registerFace/{id}
 ### param {id}: GUID to indicate the face.
 ### Content: jpeg data.
 The picture associates to the same id will be treated as a same person.
 Several pictures can be associated to the same person.
 If there are more than one face on the picture, return false.
+### Response: json result to indicate the result.
+```json
+{
+   "result":true
+}
+```
+## POST /classifyFace/{id}
+### param {id}: the GUID of the face to classify.
+After registered a bunch of faces, call this interface to do the classify. Otherwise the /detectFacesC wouldn't work.
+### Response: json result to indicate the result.
+```json
+{
+   "result":true
+}
+```
+
+#POST /removeFace
+### param {id}: the GUID of the faces to remove.
+Remove the register face from system.
 ### Response: json result to indicate the result.
 ```json
 {
