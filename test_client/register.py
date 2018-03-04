@@ -7,6 +7,8 @@ from time import sleep
 import requests
 import base64
 
+from PIL import Image, ImageFont, ImageDraw, ImageEnhance
+
 # vc = cv2.VideoCapture(0)
 
 
@@ -104,7 +106,7 @@ def upload_file():
     files = (os.listdir(folder))
     # Upload files to server
     counter = 0
-    url = 'http://127.0.0.1:5000/detectFace'
+    url_register = 'http://127.0.0.1:5000/registerFace/' + username
     for f in files:
         fileFullName = os.path.join(folder, f)
 
@@ -113,7 +115,7 @@ def upload_file():
 
         files = {'file': encoded_image}
 
-        response = requests.post(url, files=files)
+        response = requests.post(url_register, files=files)
 
         counter += 1;
 
@@ -123,6 +125,15 @@ def upload_file():
         else:
             print(response)
             print("")
+
+    # Sent classify request
+    url_classify = 'http://127.0.0.1:5000/classifyFace'
+    content = {}
+
+    response = requests.post(url_classify, data=content)
+    if response.ok:
+        print("Start classifying...")
+
 upload_file()
 
 
