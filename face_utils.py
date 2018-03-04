@@ -21,6 +21,7 @@ import math
 import pickle
 from sklearn.svm import SVC
 from sklearn.externals import joblib
+import scipy
 
 def load_model(modeldir, classifier_filename):
     print('Creating networks and loading parameters')
@@ -143,11 +144,62 @@ def recong_face(model, sess, graph, class_names, pnet, rnet, onet, imgpath):
     cv2.destroyAllWindows()
     return newimgpath
 
+def encode_faces(graph, sess, pnet, rnet, onet, image):
+    minsize = 20  # minimum size of face
+    threshold = [0.1, 0.6, 0.9]  # three steps's threshold
+    factor = 0.709  # scale factor
+    face_size = 160
+    margin = 32
+
+    if image.ndim == 2:
+        image = facenet.to_rgb(image)
+    image = image[:, :, 0:3]
+    image_size = np.asarray(image.shape)[0:2]
+    bounding_boxes, _ = detect_face.detect_face(image, minsize, pnet, rnet, onet, threshold, factor)
+    result = []
+    nrof_faces = bounding_boxes.shape[0]
+    boxes = np.zeros((nrof_faces, 4), dtype=np.int32)
+    img_list = []
+    for i in range(nrof_faces):
+        boxes[i][0] = np.maximum(bounding_boxes[i, 0] - margin / 2, 0)
+        boxes[i][1] = np.maximum(bounding_boxes[i, 1] - margin / 2, 0)
+        boxes[i][2] = np.minimum(bounding_boxes[i, 2] + margin / 2, image_size[1])
+        boxes[i][3] = np.minimum(bounding_boxes[i, 3] + margin / 2, image_size[0])
+
+        #scipy.misc.imsave('out.jpg', image)
+        cropped = image[boxes[i][1]:boxes[i][3], boxes[i][0]:boxes[i][2], :]
+        aligned = misc.imresize(cropped, (face_size, face_size), interp='bilinear')
+        #scipy.misc.imsave('out_' + str(i) + '.jpg', aligned)
+        prewhitened = facenet.prewhiten(aligned)
+        img_list.append(prewhitened)
+
+    images = np.stack(img_list)
+
+    images_placeholder = graph.get_tensor_by_name("input:0")
+    embeddings = graph.get_tensor_by_name("embeddings:0")
+    phase_train_placeholder = graph.get_tensor_by_name("phase_train:0")
+
+    feed_dict = { images_placeholder: images, phase_train_placeholder: False }
+    embs = sess.run(embeddings, feed_dict=feed_dict)
+
+    for i in range(len(embs)):
+       result.append((embs[i], boxes[i]))
+
+    return result
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
-    model, sess, graph, class_names, pnet, rnet, onet = load_model('models/facenet/20180220-152437', '../models/my_classifier.pkl')
-    test_image(model, sess, graph, class_names, pnet, rnet, onet, argv[1])
+    model, sess, graph, class_names, pnet, rnet, onet = load_model('C:\\Users\\edaiwxu\\Documents\\projects\\models\\20170512-110547',
+        'C:\\Users\\edaiwxu\\Documents\\projects\\models\\my_classifier.pkl')
+    #test_image(model, sess, graph, class_names, pnet, rnet, onet, argv[1])
+    frame = cv2.imread("C:\\Users\\edaiwxu\\Downloads\\IMG_9473.jpg")
+    result = encode_faces(graph, sess, pnet, rnet, onet, frame)
+    print("faces detect:")
+    print(len(result))
+    for r in result:
+        e, box = r
+        print(len(e), box[0], box[1], box[2], box[3])
 
 if __name__ == "__main__":
     sys.exit(main())
