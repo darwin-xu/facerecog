@@ -72,7 +72,7 @@ After registered a bunch of faces, call this interface to do the classify. Other
 }
 ```
 
-#POST /removeFace
+## POST /removeFace
 ### param {id}: the GUID of the faces to remove.
 Remove the register face from system.
 ### Response: json result to indicate the result.
