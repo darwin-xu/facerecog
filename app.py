@@ -65,4 +65,4 @@ if os.path.exists(embedding_dat_path):
 model, sess, graph, ids, pnet, rnet, onet = load_model('models/facenet/20180220-152437', classifier_filename)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True, threaded=True)
