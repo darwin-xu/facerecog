@@ -22,7 +22,7 @@ def detect():
         img = sys.argv[1]
         print(img)
 
-    url_detect = 'http://127.0.0.1:5000/detectFacesC'
+    url_detect = 'http://127.0.0.1:5000/detectFace'
 
     with open(img, "rb") as imgFile:
         encoded_image = imgFile.read()
@@ -67,8 +67,9 @@ def detect():
                     (f["x1"], f["y2"]), f["name"], (0, 0, 255), font=fontType)
 
                 # TODO: Get the absolute path
-                out_file = os.path.expanduser("~/result.jpg")
-                source_img.convert("RGB").save(out_file, "JPEG")
+                #out_file=os.path.expanduser("~/Downloads/upload/result.jpg")
+                out_file=("./result.jpg")
+                source_img.save(out_file, "JPEG")
 
                 Image.open(out_file).convert("RGB").show()
 

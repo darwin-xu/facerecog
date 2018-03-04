@@ -2,6 +2,7 @@
 from flask import Flask, Response, request
 import json
 import os
+import imageio
 
 app = Flask(__name__)
 
@@ -35,10 +36,10 @@ def classifyFace():
     print("Classify starting...")
     return Response()
 
-
-@app.route("/detectFacesC", methods=['GET', 'POST'])
-def detectFacesC():
-    """Deect face."""
+@app.route("/detectFace", methods=['GET', 'POST'])
+def detectFace():
+    file = request.files['file']
+    im = imageio.imread(file)
     f1 = {
         "possibility": 0.8,
         "x1": 45,

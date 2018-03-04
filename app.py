@@ -2,7 +2,7 @@
 import os.path
 import pickle
 import json
-
+import imageio
 from flask import Flask, Response, jsonify, make_response, request
 from face_utils import encode_faces, load_model, recong_face_c, generate_response
 from make_classifier import make_classifier
@@ -11,7 +11,8 @@ app = Flask(__name__)
 
 @app.route('/detectFacesC', methods=['POST'])
 def detect_face_c():
-    img = request.files['file']
+    imgFile = request.files['file']
+    img = imageio.imread(imgFile)
     posbs, bbs, recg_ids = recong_face_c(model, sess, graph, ids, pnet, rnet, onet, img)
 
     return make_response(jsonify(generate_response(posbs, bbs, recg_ids), 201))
@@ -43,11 +44,12 @@ def remove_face(id):
 
 embedding_dat_path = './embedding.dat'
 embeddings = {}
+model_path = '../models/20170511-185253'
 classifier_filename = '../models/my_classifier.pkl'
 if os.path.exists(embedding_dat_path):
     with open(embedding_dat_path, 'rb') as infile:
         embeddings = pickle.load(infile)
-model, sess, graph, ids, pnet, rnet, onet = load_model('../models/20170511-185253', classifier_filename)
+model, sess, graph, ids, pnet, rnet, onet = load_model(model_path, classifier_filename)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, threaded=True)
