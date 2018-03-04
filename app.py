@@ -29,11 +29,11 @@ def detect_face_c():
     img = request.files['file']
     posbs, bbs, recg_ids = recong_face_c(model, sess, graph, ids, pnet, rnet, onet, img)
 
-    return make_response(jsonify(dict(generate_response(posbs, bbs, recg_ids)), 201)
+    return make_response(jsonify(generate_response(posbs, bbs, recg_ids), 201))
 
 @app.route('/detectFacesD', methods=['POST'])
 def detect_face_d():
-    return ""
+    return ''
 
 @app.route('/registerFace/<string:id>', methods=['POST'])
 def register_face(id):
