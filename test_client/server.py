@@ -15,6 +15,7 @@ def hello():
 @app.route("/detectFace", methods=['GET', 'POST'])
 def detectFace():
     """dectFace."""
+    img_dir = "/home/kevin/"
     print("Handling POST request...")
 
     result = 'result.jpg'
@@ -22,7 +23,7 @@ def detectFace():
     file = request.files['file']
     if file:
         file.save(
-            os.path.join('/Users/kevinzhong/git/facerecog/test_client/',
+            os.path.join(img_dir,
                          result))
 
     f1 = {

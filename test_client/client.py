@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 """Client for collect camera stream."""
+import os, sys, platform
 import json
 from time import sleep
-import cv2
+# import cv2
 import requests
 import base64
 
-vc = cv2.VideoCapture(0)
+# vc = cv2.VideoCapture(0)
 
 
 def gen():
@@ -63,9 +64,66 @@ def gen():
         # print(faceInfo)
 
 
-gen()
+# gen()
 
-if cv2.waitKey(0) & 0xFF == ord('q'):
-    print("release resoure...")
-    vc.release()
-    cv2.destroyAllWindows()
+# if cv2.waitKey(0) & 0xFF == ord('q'):
+#     print("release resoure...")
+#     vc.release()
+#     cv2.destroyAllWindows()
+
+
+# 1. Check command argugments
+username = ""
+folder   = ""
+url = 'http://127.0.0.1:5000/detectFace'
+
+def init_cmd_params():
+    if len(sys.argv) != 3:
+        print ("Usage: Please provide <username> and <upload_folder>.")
+        sys.exit(1)
+    else:
+        username = sys.argv[1]
+        folder   = sys.argv[2]
+        print(username)
+        print(folder)
+
+def upload_file():
+    # init_cmd_params()
+
+    username = ""
+    folder   = ""
+
+    if len(sys.argv) != 3:
+        print ("Usage: Please provide <username> and <upload_folder>.")
+        sys.exit(1)
+    else:
+        username = sys.argv[1]
+        folder   = sys.argv[2]
+
+    # Iterate current folder and upload to server
+    files = (os.listdir(folder))
+    # Upload files to server
+    counter = 0
+    url = 'http://127.0.0.1:5000/detectFace'
+    for f in files:
+        fileFullName = os.path.join(folder, f)
+
+        with open(fileFullName, "rb") as image_file:
+            encoded_image = image_file.read()
+
+        files = {'file': encoded_image}
+
+        response = requests.post(url, files=files)
+
+        counter += 1;
+
+        print("Uploading... file [{}] {}".format(counter, fileFullName))
+        if response.ok:
+            print("SUCCESS\n")
+        else:
+            print(response)
+            print("")
+upload_file()
+
+
+
