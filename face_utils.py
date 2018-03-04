@@ -144,6 +144,24 @@ def recong_face(model, sess, graph, class_names, pnet, rnet, onet, imgpath):
     cv2.destroyAllWindows()
     return newimgpath
 
+def distance(emb1, emb2):
+    dist = np.sqrt(np.sum(np.square(np.subtract(emb1, emb2))))
+    return dist
+
+def search_face_by_distance(embeddings, tofind):
+    min_dist = 1000.0
+    min_id = ''
+    threshold = 1.2
+    for id, embs in embeddings.items():
+        for emb in embs:
+            dist = distance(emb, tofind)
+            if (dist < min_dist):
+                min_dist = dist
+                min_id = id
+
+    if (min_dist < threshold):
+        return min_id, min_dist
+
 def encode_faces(graph, sess, pnet, rnet, onet, image):
     minsize = 20  # minimum size of face
     threshold = [0.1, 0.6, 0.9]  # three steps's threshold
@@ -199,7 +217,7 @@ def main(argv=None):
     print(len(result))
     for r in result:
         e, box = r
-        print(len(e), box[0], box[1], box[2], box[3])
+        print(e)
 
 if __name__ == "__main__":
     sys.exit(main())

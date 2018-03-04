@@ -16,6 +16,10 @@ def detect_face_c():
 
 @app.route('/detectFacesD', methods=['POST'])
 def detect_face_d():
+    img = request.files['file']
+    embeddings_boxes = encode_faces(graph, sess, pnet, rnet, onet, img)
+    for emb, box in embeddings_boxes.items():
+        id, pos = search_face_by_distance(embeddings, emb)
     return ""
 
 @app.route('/registerFace/<string:id>', methods=['POST'])
