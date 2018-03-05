@@ -1,32 +1,32 @@
 #!flask/bin/python
 import os.path
 import pickle
+import numpy
 import json
-
+import imageio
 from flask import Flask, Response, jsonify, make_response, request
-from face_utils import encode_faces, load_model, recong_face_c
+from face_utils import encode_faces, load_model, recong_face_c, generate_response
 from make_classifier import make_classifier
 
 app = Flask(__name__)
 
-def generate_response(posbs, bbs, recg_ids):
-    response = {}
-    response['faces'] = []
-    for i in range(len(posbs)):
-        face = {}
-        face['possibility'] = posbs[i]
-        face['x1'] = bbs[i][0]
-        face['y1'] = bbs[i][1]
-        face['x2'] = bbs[i][2]
-        face['y2'] = bbs[i][3]
-        face['id'] = recg_ids[i]
-        response['faces'].append(face)
-        
-    return response
+class JSONNumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, numpy.integer):
+            return int(obj)
+        elif isinstance(obj, numpy.floating):
+            return float(obj)
+        elif isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+        else:
+            return super(JSONNumpyEncoder, self).default(obj)
+
+app.json_encoder = JSONNumpyEncoder
 
 @app.route('/detectFacesC', methods=['POST'])
 def detect_face_c():
-    img = request.files['file']
+    imgFile = request.files['file']
+    img = imageio.imread(imgFile)
     posbs, bbs, recg_ids = recong_face_c(model, sess, graph, ids, pnet, rnet, onet, img)
 
     return make_response(jsonify(generate_response(posbs, bbs, recg_ids), 201))
@@ -62,11 +62,12 @@ def remove_face(id):
 
 embedding_dat_path = './embedding.dat'
 embeddings = {}
-classifier_filename = 'C:\\Users\\edaiwxu\\Documents\\projects\models\\my_classifier.pkl'
+model_path = '../models/20170511-185253'
+classifier_filename = '../models/my_classifier.pkl'
 if os.path.exists(embedding_dat_path):
     with open(embedding_dat_path, 'rb') as infile:
         embeddings = pickle.load(infile)
-model, sess, graph, ids, pnet, rnet, onet = load_model('C:\\Users\\edaiwxu\\Documents\\projects\\models\\20170512-110547', classifier_filename)
+model, sess, graph, ids, pnet, rnet, onet = load_model(model_path, classifier_filename)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True, threaded=True, use_reloader=False)
