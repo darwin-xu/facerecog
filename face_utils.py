@@ -152,7 +152,7 @@ def main(argv=None):
         argv = sys.argv
     model, sess, graph, ids, pnet, rnet, onet = load_model('../models/20170511-185253', '../models/my_classifier.pkl')
     #test_image(model, sess, graph, class_names, pnet, rnet, onet, argv[1])
-    frame = cv2.imread('./1p.jpg')
+    frame = cv2.imread('./3p.jpg')
     print(frame.shape)
     pos, bbs, rec_ids = recong_face_c(model, sess, graph, ids, pnet, rnet, onet, frame)
     print(pos)

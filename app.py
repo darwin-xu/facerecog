@@ -63,7 +63,7 @@ def register_face(id):
 
 @app.route('/classifyFace', methods=['POST'])
 def classify_face():
-    make_classifier(sess, graph, embeddings, classifier_filename)
+    model, ids = make_classifier(sess, graph, embeddings, classifier_filename)
     return make_response(jsonify({'ok': 'ok'}), 201)
 
 @app.route('/removeFace/<string:id>', methods=['DELETE'])
