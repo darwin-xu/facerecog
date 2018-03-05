@@ -41,11 +41,14 @@ def detect_face_d():
 
 @app.route('/registerFace/<string:id>', methods=['POST'])
 def register_face(id):
-    img = request.files['file']
+    imgFile = request.files['file']
+    img = imageio.imread(imgFile)
     embeddings_boxes = encode_faces(graph, sess, pnet, rnet, onet, img)
     if len(embeddings_boxes) != 1:
         return make_response(jsonify({'error': 'invalid image'}), 403)
     else:
+        if id not in embeddings:
+            embeddings[id] = []
         embeddings[id].append(embeddings_boxes[0][0])
         with open(embedding_dat_path, 'wb') as outfile:
             pickle.dump((embeddings), outfile)
@@ -70,4 +73,4 @@ if os.path.exists(embedding_dat_path):
 model, sess, graph, ids, pnet, rnet, onet = load_model(model_path, classifier_filename)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, threaded=True, use_reloader=False)
+    app.run(host='0.0.0.0', debug=False, threaded=True, use_reloader=False)
