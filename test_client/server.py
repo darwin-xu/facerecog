@@ -36,8 +36,10 @@ def classifyFace():
     print("Classify starting...")
     return Response()
 
-@app.route("/detectFace", methods=['GET', 'POST'])
+
+@app.route("/detectFacesC", methods=['GET', 'POST'])
 def detectFace():
+    """Detect face."""
     file = request.files['file']
     im = imageio.imread(file)
     f1 = {
@@ -46,7 +48,7 @@ def detectFace():
         "y1": 20,
         "x2": 85,
         "y2": 60,
-        "name": "Darwin"
+        "id": "Darwin"
     }
     f2 = {
         "possibility": 0.6,
@@ -54,9 +56,9 @@ def detectFace():
         "y1": 200,
         "x2": 850,
         "y2": 600,
-        "name": "Kevin"
+        "id": "Kevin"
     }
-    r = {"timestamp": 438787, "result": [f1, f2]}
+    r = [{"timestamp": 438787, "faces": [f1, f2]}]
 
     return Response(json.dumps(r), mimetype='application/json')
 
