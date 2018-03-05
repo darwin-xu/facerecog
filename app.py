@@ -5,7 +5,7 @@ import numpy
 import json
 import imageio
 from flask import Flask, Response, jsonify, make_response, request
-from face_utils import encode_faces, load_model, recong_face_c, generate_response
+from face_utils import encode_faces, load_model, recong_face_c, generate_response, search_face_by_distance
 from make_classifier import make_classifier
 
 app = Flask(__name__)
@@ -33,11 +33,18 @@ def detect_face_c():
 
 @app.route('/detectFacesD', methods=['POST'])
 def detect_face_d():
-    img = request.files['file']
+    imgFile = request.files['file']
+    img = imageio.imread(imgFile)
     embeddings_boxes = encode_faces(graph, sess, pnet, rnet, onet, img)
-    for emb, box in embeddings_boxes.items():
+    posbs = []
+    boxes = []
+    ids = []
+    for emb, box in embeddings_boxes:
         id, pos = search_face_by_distance(embeddings, emb)
-    return ""
+        posbs.append(pos)
+        boxes.append(box)
+        ids.append(id)
+    return make_response(jsonify(generate_response(posbs, boxes, ids), 201))
 
 @app.route('/registerFace/<string:id>', methods=['POST'])
 def register_face(id):
