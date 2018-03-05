@@ -1,6 +1,7 @@
 #!flask/bin/python
 import os.path
 import pickle
+import numpy
 import json
 import imageio
 from flask import Flask, Response, jsonify, make_response, request
@@ -8,6 +9,19 @@ from face_utils import encode_faces, load_model, recong_face_c, generate_respons
 from make_classifier import make_classifier
 
 app = Flask(__name__)
+
+class JSONNumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, numpy.integer):
+            return int(obj)
+        elif isinstance(obj, numpy.floating):
+            return float(obj)
+        elif isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+        else:
+            return super(JSONNumpyEncoder, self).default(obj)
+
+app.json_encoder = JSONNumpyEncoder
 
 @app.route('/detectFacesC', methods=['POST'])
 def detect_face_c():
@@ -52,4 +66,4 @@ if os.path.exists(embedding_dat_path):
 model, sess, graph, ids, pnet, rnet, onet = load_model(model_path, classifier_filename)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, threaded=True)
+    app.run(host='0.0.0.0', debug=True, threaded=True, use_reloader=False)

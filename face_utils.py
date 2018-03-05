@@ -121,6 +121,7 @@ def generate_response(posbs, bbs, recg_ids):
         face['id'] = recg_ids[i]
         response['faces'].append(face)
         
+    print (response)
     return response
 
 def main(argv=None):
