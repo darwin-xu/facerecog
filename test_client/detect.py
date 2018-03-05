@@ -53,13 +53,11 @@ def detect():
                 osType = platform.system()
                 fontLoc = ""
                 if (osType == "Window"):
-                    # TODO: Update font location
-                    fontLoc = "/Users/kevinzhong/Library/Fonts/SourceCodePro-Regular.ttf"
+                    fontLoc = "C:\\Windows\Fonts\\Arial.ttf"
                 elif (osType == "Darwin"):
                     fontLoc = "/Users/kevinzhong/Library/Fonts/SourceCodePro-Regular.ttf"
                 elif (osType == "Linux"):
-                    # TODO: Update font location
-                    fontLoc = "/Users/kevinzhong/Library/Fonts/SourceCodePro-Regular.ttf"
+                    fontLoc = "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf"
 
                 fontType = ImageFont.truetype(fontLoc, 18)
 
