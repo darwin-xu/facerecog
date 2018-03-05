@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Client for collect camera stream."""
+"""Upload files to server."""
 import os
 import sys
 import requests
@@ -40,17 +40,6 @@ def upload_file():
             print("SUCCESS\n")
         else:
             print(response)
-
-    # Sent classify request
-    url_classify = base_uri + "/classifyFace"
-
-    content = {}
-
-    response = requests.post(url_classify, data=content)
-    if response.ok:
-        print("Start classifying...")
-    else:
-        print(response)
 
 
 upload_file()
