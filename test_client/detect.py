@@ -22,7 +22,7 @@ def detect():
         img = sys.argv[1]
         print(img)
 
-    url_detect = 'http://127.0.0.1:5000/detectFace'
+    url_detect = 'http://127.0.0.1:5000/detectFacesC'
 
     with open(img, "rb") as imgFile:
         encoded_image = imgFile.read()
@@ -36,8 +36,9 @@ def detect():
 
     if response.ok:
         result = json.loads(response.content.decode('utf-8'))
+        print (result)
 
-        for f in result["result"]:
+        for f in result[0]["faces"]:
             print(f)
             if (f["possibility"] < 0.8):
 
@@ -51,9 +52,10 @@ def detect():
 
                 # Define font based on different platform
                 osType = platform.system()
+                print(osType)
                 fontLoc = ""
-                if (osType == "Window"):
-                    fontLoc = "C:\\Windows\Fonts\\Arial.ttf"
+                if (osType == "Windows"):
+                    fontLoc = "C:\\Windows\Fonts\\Arial\\ariblk.ttf"
                 elif (osType == "Darwin"):
                     fontLoc = "/Users/kevinzhong/Library/Fonts/SourceCodePro-Regular.ttf"
                 elif (osType == "Linux"):
@@ -62,7 +64,7 @@ def detect():
                 fontType = ImageFont.truetype(fontLoc, 18)
 
                 draw.text(
-                    (f["x1"], f["y2"]), f["name"], (0, 0, 255), font=fontType)
+                    (f["x1"], f["y2"]), f["id"], (0, 0, 255), font=fontType)
 
                 # TODO: Get the absolute path
                 #out_file=os.path.expanduser("~/Downloads/upload/result.jpg")
