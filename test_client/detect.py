@@ -38,11 +38,11 @@ def detect():
         result = json.loads(response.content.decode('utf-8'))
         print (result)
 
+        source_img = Image.open(img).convert("RGB")
         for f in result[0]["faces"]:
             print(f)
             if (f["possibility"] < 0.8):
 
-                source_img = Image.open(img).convert("RGB")
                 draw = ImageDraw.Draw(source_img)
 
                 draw.rectangle(
@@ -68,14 +68,15 @@ def detect():
 
                 # TODO: Get the absolute path
                 #out_file=os.path.expanduser("~/Downloads/upload/result.jpg")
-                out_file=("./result.jpg")
-                source_img.save(out_file, "JPEG")
 
-                Image.open(out_file).convert("RGB").show()
 
                 print("Matched!!!")
             else:
                 print("Not match...")
+
+        out_file=("./result.jpg")
+        source_img.save(out_file, "JPEG")
+        Image.open(out_file).convert("RGB").show()
 
         # faceInfo = [FaceInfo(**f) for f in result["result"]]
         # print(faceInfo)
