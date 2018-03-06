@@ -7,8 +7,8 @@ Action point:
 1. Review the code regarding the margin.
 2. Control the picture size for the process speed (in client).
 3. Detect.py support video (low priority).
-4. deleteFace, deleteFaces
+4. Implement interface: deleteFace, deleteFaces.
 5. Propose a new version of interface for rest
-6. Prevent from register face more than once.
+6. Prevent from register face more than once (low priority).
 7. Find a good threshold for /detectFacesD.
 8. Invesigate K-mean algorithm.

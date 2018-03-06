@@ -93,7 +93,7 @@ global model, sess, graph, embeddings
 embedding_dat_path = './embedding.dat'
 embeddings = {}
 model_path = '../models/20170511-185253'
-classifier_filename = '../models/my_classifier.pkl'
+classifier_filename = './my_classifier.pkl'
 if os.path.exists(embedding_dat_path):
     with open(embedding_dat_path, 'rb') as infile:
         embeddings = pickle.load(infile)
