@@ -14,14 +14,22 @@ def detect():
     """Detect face function."""
     img = ""
 
-    if len(sys.argv) != 2:
-        print("Usage: Please provide <fileName>.")
+    # Default interface
+    url_detect = 'http://127.0.0.1:5000/detectFacesC'
+
+    if len(sys.argv) < 2:
+        print("Usage: Please provide [detect method] <fileName>.")
+        print("   -c for detectFacesC")
+        print("   -d for detectFacesD")
         sys.exit(1)
     else:
-        img = sys.argv[1]
-        print(img)
-
-    url_detect = 'http://127.0.0.1:5000/detectFacesC'
+        for i in range(1, len(sys.argv)):
+            if sys.argv[i].startswith('-c'):
+                url_detect = 'http://127.0.0.1:5000/detectFacesC'
+            elif sys.argv[i].startswith('-d'):
+                url_detect = 'http://127.0.0.1:5000/detectFacesD'
+            else:
+                img = sys.argv[i]
 
     with open(img, "rb") as imgFile:
         encoded_image = imgFile.read()
