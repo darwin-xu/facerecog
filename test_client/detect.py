@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 """Client for detect face with name and indicated rectangle."""
-import os
 import sys
-import platform
 import json
 import requests
 import cv2
-
-# from PIL import Image, ImageFont, ImageDraw, ImageEnhance
+import imgUtil
 
 
 def detect():
@@ -31,10 +28,10 @@ def detect():
             else:
                 img = sys.argv[i]
 
-    with open(img, "rb") as imgFile:
-        encoded_image = imgFile.read()
-
-    files = {'file': encoded_image}
+    # Resize image in order to handle it smoothly
+    thumbnail = imgUtil.resize_image(img)
+    result = cv2.imencode('.jpg', thumbnail)[1].tostring()
+    files = {'file': result}
 
     response = requests.post(url_detect, files=files)
 
@@ -44,23 +41,22 @@ def detect():
         result = json.loads(response.content.decode('utf-8'))
         print(result)
 
-        pic = cv2.imread(img, cv2.IMREAD_COLOR)
         for f in result[0]["faces"]:
             print(f)
             if (f["possibility"] < 0.8):
 
-                cv2.rectangle(pic, (f["x1"], f["y1"]), (f["x2"], f["y2"]),
-                              (0, 0, 255), 2)
+                cv2.rectangle(thumbnail, (f["x1"], f["y1"]),
+                              (f["x2"], f["y2"]), (0, 0, 255), 2)
                 # Add name on top of the rectangle
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                cv2.putText(pic, f["id"], (f["x1"], f["y2"] + 30), font, 1,
-                            (255, 0, 0), 1, cv2.LINE_AA)
+                cv2.putText(thumbnail, f["id"], (f["x1"], f["y2"] + 30), font,
+                            1, (255, 0, 0), 1, cv2.LINE_AA)
 
                 print("Matched!!!")
             else:
                 print("Not match...")
 
-        cv2.imshow("image", pic)
+        cv2.imshow("image", thumbnail)
 
 
 detect()

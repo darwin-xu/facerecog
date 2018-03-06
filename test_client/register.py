@@ -3,7 +3,8 @@
 import os
 import sys
 import requests
-from PIL import Image
+import cv2
+import imgUtil
 
 
 def upload_file():
@@ -27,29 +28,10 @@ def upload_file():
     for f in files:
         fileFullName = os.path.join(folder, f)
 
-        max_height = 1024
-        max_width = 1024
-        with Image.open(fileFullName) as img:
-            width, height = img.size
-            print("original size:")
-            print(img.size)
-
-            # only shrink if img is bigger than required
-            if max_height < height or max_width < width:
-                # get scaling factor
-                scaling_factor = max_height / float(height)
-                if max_width / float(width) < scaling_factor:
-                    scaling_factor = max_width / float(width)
-                    # resize image
-                    img = img.resize((int(width * scaling_factor),
-                                      int(height * scaling_factor)),
-                                     Image.ANTIALIAS)
-
-            print("Scaled size:")
-            print(img.size)
-            output = img.tobytes()
-            files = {'file': output}
-            response = requests.post(url_register, files=files)
+        thumbnail = imgUtil.resize_image(fileFullName)
+        result = cv2.imencode('.jpg', thumbnail)[1].tostring()
+        files = {'file': result}
+        response = requests.post(url_register, files=files)
 
         counter += 1
 
