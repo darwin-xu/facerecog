@@ -1,5 +1,6 @@
 #!flask/bin/python
 import os.path
+import os
 import pickle
 import numpy
 import json
@@ -27,7 +28,7 @@ app.json_encoder = JSONNumpyEncoder
 def detect_face_c():
     imgFile = request.files['file']
     img = imageio.imread(imgFile)
-    posbs, bbs, recg_ids = recong_face_c(model, sess, graph, ids, pnet, rnet, onet, img)
+    posbs, bbs, recg_ids = recong_face_c(model, sess, graph, pnet, rnet, onet, img)
 
     return make_response(jsonify(generate_response(posbs, bbs, recg_ids), 201))
 
@@ -58,18 +59,37 @@ def register_face(id):
             embeddings[id] = []
         embeddings[id].append(embeddings_boxes[0][0])
         with open(embedding_dat_path, 'wb') as outfile:
-            pickle.dump((embeddings), outfile)
+            pickle.dump(embeddings, outfile)
         return make_response(jsonify({'ok': 'ok'}), 201)
 
 @app.route('/classifyFace', methods=['POST'])
 def classify_face():
-    model, ids = make_classifier(sess, graph, embeddings, classifier_filename)
+    global model
+    model = make_classifier(sess, graph, embeddings, classifier_filename)
+    return make_response(jsonify({'ok': 'ok'}), 201)
+
+@app.route('/getIds', methods=['GET'])
+def get_ids():
+    return json.dumps(list(model.classes_))
+
+@app.route('/removeFace', methods=['DELETE'])
+def remove_faces():
+    global embeddings
+    embeddings = {}
+    os.remove(embedding_dat_path)
     return make_response(jsonify({'ok': 'ok'}), 201)
 
 @app.route('/removeFace/<string:id>', methods=['DELETE'])
 def remove_face(id):
-    return ""
+    global embeddings
+    if id in embeddings:
+        del embeddings[id]
+        with open(embedding_dat_path, 'wb') as outfile:
+            pickle.dump(embeddings, outfile)
+        return make_response(jsonify({'ok': 'ok'}), 201)
+    return make_response(jsonify({'error': 'invalid id'}), 403)
 
+global model, sess, graph, embeddings
 embedding_dat_path = './embedding.dat'
 embeddings = {}
 model_path = '../models/20170511-185253'
@@ -77,7 +97,7 @@ classifier_filename = '../models/my_classifier.pkl'
 if os.path.exists(embedding_dat_path):
     with open(embedding_dat_path, 'rb') as infile:
         embeddings = pickle.load(infile)
-model, sess, graph, ids, pnet, rnet, onet = load_model(model_path, classifier_filename)
+model, sess, graph, pnet, rnet, onet = load_model(model_path, classifier_filename)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=False, threaded=True, use_reloader=False)

@@ -35,15 +35,16 @@ def load_model(modeldir, classifier_filename):
             print('Loading feature extraction model')
             facenet.load_model(modeldir)
 
+            model = None
             classifier_filename_exp = os.path.expanduser(classifier_filename)
-            with open(classifier_filename_exp, 'rb') as infile:
-                (model, ids) = pickle.load(infile)
-                print('load classifier file-> %s' % classifier_filename_exp)
-                print('class names:-> %s' % ids)
+            if os.path.exists(classifier_filename_exp):
+                with open(classifier_filename_exp, 'rb') as infile:
+                    model = pickle.load(infile)
+                    print('load classifier file-> %s' % classifier_filename_exp)
 
-    return model, sess, graph, ids, pnet, rnet, onet
+    return model, sess, graph, pnet, rnet, onet
 
-def recong_face_c(model, sess, graph, ids, pnet, rnet, onet, image):
+def recong_face_c(model, sess, graph, pnet, rnet, onet, image):
     result = encode_faces(graph, sess, pnet, rnet, onet, image)
     # print ("the result array's shape: " + str(emb_array.shape))
     pos = []
@@ -62,7 +63,7 @@ def recong_face_c(model, sess, graph, ids, pnet, rnet, onet, image):
         print (best_class_probabilities)
         pos.append(best_class_probabilities[0])
         bbs.append(bb)
-        rec_ids.append(ids[best_class_indices[0]])
+        rec_ids.append(model.classes_[best_class_indices[0]])
     return pos, bbs, rec_ids
 
 def distance(emb1, emb2):
