@@ -29,6 +29,9 @@ def upload_file():
         fileFullName = os.path.join(folder, f)
 
         thumbnail = imgUtil.resize_image(fileFullName)
+        if thumbnail is None:
+            continue
+            
         result = cv2.imencode('.jpg', thumbnail)[1].tostring()
         files = {'file': result}
         response = requests.post(url_register, files=files)

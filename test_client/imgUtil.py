@@ -34,6 +34,10 @@ def resize_image(fileFullName: str) -> str:
     """Reize image function."""
     input = cv2.imread(fileFullName)
 
+    # If it cannot open.
+    if input is None:
+        return None
+
     height, width = input.shape[:2]
 
     print("original size:")
