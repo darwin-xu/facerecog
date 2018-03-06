@@ -81,7 +81,13 @@ def search_face_by_distance(embeddings, tofind):
                 min_dist = dist
                 min_id = id
 
-    return min_id, min_dist
+    posi = 0
+    if (min_dist < threshold):
+        posi = 1 - min_dist / threshold
+    else:
+        min_id = "unknown"
+
+    return min_id, posi
 
 def encode_faces(graph, sess, pnet, rnet, onet, image):
     minsize = 20  # minimum size of face

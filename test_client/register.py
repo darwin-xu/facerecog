@@ -3,6 +3,7 @@
 import os
 import sys
 import requests
+from PIL import Image
 
 
 def upload_file():
@@ -26,12 +27,29 @@ def upload_file():
     for f in files:
         fileFullName = os.path.join(folder, f)
 
-        with open(fileFullName, "rb") as image_file:
-            encoded_image = image_file.read()
+        max_height = 1024
+        max_width = 1024
+        with Image.open(fileFullName) as img:
+            width, height = img.size
+            print("original size:")
+            print(img.size)
 
-        files = {'file': encoded_image}
+            # only shrink if img is bigger than required
+            if max_height < height or max_width < width:
+                # get scaling factor
+                scaling_factor = max_height / float(height)
+                if max_width / float(width) < scaling_factor:
+                    scaling_factor = max_width / float(width)
+                    # resize image
+                    img = img.resize((int(width * scaling_factor),
+                                      int(height * scaling_factor)),
+                                     Image.ANTIALIAS)
 
-        response = requests.post(url_register, files=files)
+            print("Scaled size:")
+            print(img.size)
+            output = img.tobytes()
+            files = {'file': output}
+            response = requests.post(url_register, files=files)
 
         counter += 1
 
