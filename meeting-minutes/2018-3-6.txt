@@ -1,0 +1,14 @@
+Short term plan
+1. Tuesday, Wednesday, Thursday, Friday. We are going to test it. Eating your own dog food.
+2. Saturday, Sunday. We are going to train the model.
+3. Week 11, start to deploy the server.
+
+Action point:
+1. Review the code regarding the margin.
+2. Control the picture size for the process speed (in client).
+3. Detect.py support video (low priority).
+4. deleteFace, deleteFaces
+5. Propose a new version of interface for rest
+6. Prevent from register face more than once.
+7. Find a good threshold for /detectFacesD.
+8. Invesigate K-mean algorithm.
