@@ -62,6 +62,25 @@ def register_face(id):
             pickle.dump(embeddings, outfile)
         return make_response(jsonify({'ok': 'ok'}), 201)
 
+@app.route('/registerFaces/<string:id>', methods=['POST'])
+def register_faces(id):
+    imgFile = request.files['file']
+    img = imageio.imread(imgFile)
+    embeddings_boxes = encode_faces(graph, sess, pnet, rnet, onet, img)
+    if len(embeddings_boxes) != 1:
+        return make_response(jsonify({'error': 'invalid image'}), 403)
+    else:
+        if id not in embeddings:
+            embeddings[id] = []
+        embeddings[id].append(embeddings_boxes[0][0])
+        return make_response(jsonify({'ok': 'ok'}), 201)
+
+@app.route('/registerFacesDone', methods=['POST'])
+def register_faces_done():
+    with open(embedding_dat_path, 'wb') as outfile:
+        pickle.dump(embeddings, outfile)
+    return make_response(jsonify({'ok': 'ok'}), 201)
+
 @app.route('/classifyFace', methods=['POST'])
 def classify_face():
     global model
