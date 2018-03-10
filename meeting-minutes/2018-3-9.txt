@@ -1,0 +1,6 @@
+Action point:
+1. Use model-3-8 to test against the training data.
+2. Use 512 as the pre-trained data, 6 people + gai to training the CNN. And verify.
+3. Everybody wash some pictures.
+4. Use 512 as the pre-trained data to training the CNN.
+5. Consider the auto-evo architect.
