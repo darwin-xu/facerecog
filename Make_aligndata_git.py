@@ -18,7 +18,7 @@ output_dir = os.path.expanduser(output_dir_path)
 if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-datadir = '../data'
+datadir = '../models/lfw10'
 dataset = facenet.get_dataset(datadir)
 
 print('Creating networks and loading parameters')

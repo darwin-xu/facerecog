@@ -68,7 +68,7 @@ def register_face(id):
     if len(embeddings_boxes) != 1:
         return make_response(jsonify({'error': 'invalid image'}), 403)
     else:
-        save_img(id, img_file)
+        save_img(id, img)
         if id not in embeddings:
             embeddings[id] = []
         embeddings[id].append(embeddings_boxes[0][0])

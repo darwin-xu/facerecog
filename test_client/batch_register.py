@@ -29,8 +29,8 @@ def get_dataset(paths, has_class_directories=True):
             class_name = classes[i]
             facedir = os.path.join(path_exp, class_name)
             image_paths = get_image_paths(facedir)
-            if (len(image_paths) > 10):
-                dataset.append(ImageClass(class_name, image_paths))
+            # if (len(image_paths) > 10):
+            dataset.append(ImageClass(class_name, image_paths))
   
     return dataset
 
@@ -58,7 +58,7 @@ def upload_files():
     upload_file_done()
 
 def upload_file(username, image_paths):
-    base_uri = 'http://127.0.0.1:5000'
+    base_uri = 'http://49.4.15.32:5000'
 
     # Iterate current folder and upload to server
     # files = (os.listdir(folder))
@@ -82,7 +82,7 @@ def upload_file(username, image_paths):
             print(response)
 
 def upload_file_done():
-    base_uri = 'http://127.0.0.1:5000'
+    base_uri = 'http://49.4.15.32:5000'
 
     url_register_done = base_uri + "/registerFacesDone"
    
