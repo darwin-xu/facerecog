@@ -73,7 +73,7 @@ def distance(emb1, emb2):
 def search_face_by_distance(embeddings, tofind):
     min_dist = 1000.0
     min_id = ''
-    threshold = 1.2
+    threshold = 0.51
     for id, embs in embeddings.items():
         for emb in embs:
             dist = distance(emb, tofind)
@@ -87,14 +87,14 @@ def search_face_by_distance(embeddings, tofind):
     else:
         min_id = "unknown"
 
-    return min_id, posi
+    return min_id, min_dist
 
 def encode_faces(graph, sess, pnet, rnet, onet, image):
     minsize = 20  # minimum size of face
     threshold = [0.1, 0.6, 0.9]  # three steps's threshold
     factor = 0.709  # scale factor
     face_size = 160
-    margin = 32
+    margin = 0
 
     if image.ndim == 2:
         image = facenet.to_rgb(image)
