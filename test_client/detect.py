@@ -13,7 +13,9 @@ def detect():
     img = ""
 
     # Default interface
-    url_detect = 'http://127.0.0.1:5000/detectFacesC'
+    #base_URL = 'http://49.4.15.32:5000/'
+    base_URL = 'http://127.0.0.1:5000/'
+    detect_URL = 'detectFacesC'
 
     if len(sys.argv) < 2:
         print("Usage: Please provide [detect method] <fileName>.")
@@ -23,9 +25,9 @@ def detect():
     else:
         for i in range(1, len(sys.argv)):
             if sys.argv[i].startswith('-c'):
-                url_detect = 'http://127.0.0.1:5000/detectFacesC'
+                detect_URL = 'detectFacesC'
             elif sys.argv[i].startswith('-d'):
-                url_detect = 'http://127.0.0.1:5000/detectFacesD'
+                detect_URL = 'detectFacesD'
             else:
                 img = sys.argv[i]
                 filename_withoutext = os.path.splitext(sys.argv[i])[0]
@@ -35,7 +37,7 @@ def detect():
     result = cv2.imencode('.jpg', thumbnail)[1].tostring()
     files = {'file': result}
 
-    response = requests.post(url_detect, files=files)
+    response = requests.post(base_URL + detect_URL, files=files)
 
     #print(response)
 

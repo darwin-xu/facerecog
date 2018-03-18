@@ -73,7 +73,7 @@ def distance(emb1, emb2):
 def search_face_by_distance(embeddings, tofind):
     min_dist = 1000.0
     min_id = ''
-    threshold = 1.2
+    threshold = 0.51
     for id, embs in embeddings.items():
         for emb in embs:
             dist = distance(emb, tofind)
