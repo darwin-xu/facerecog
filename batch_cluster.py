@@ -201,7 +201,8 @@ def main(args):
         makedirs(args.output)
 
     with tf.Graph().as_default():
-        with tf.Session() as sess:
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=args.gpu_memory_fraction)
+        with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
             train_set = facenet.get_dataset(args.input)
             #image_list, label_list = facenet.get_image_paths_and_labels(train_set)
 
@@ -262,6 +263,8 @@ def parse_args():
     parser.add_argument('--batch_size', type=int, help='batch size', required=30)
     parser.add_argument('--input', type=str, help='Input dir of images', required=True)
     parser.add_argument('--output', type=str, help='Output dir of clusters', required=True)
+    parser.add_argument('--gpu_memory_fraction', type=float,
+        help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0)
     args = parser.parse_args()
 
     return args
