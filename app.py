@@ -41,7 +41,7 @@ def detect_face_d():
     posbs = []
     boxes = []
     ids = []
-    for emb, box in embeddings_boxes:
+    for emb, box, _ in embeddings_boxes:
         id, pos = search_face_by_distance(embeddings, emb)
         posbs.append(pos)
         boxes.append(box)
@@ -68,7 +68,8 @@ def register_face(id):
     if len(embeddings_boxes) != 1:
         return make_response(jsonify({'error': 'invalid image'}), 403)
     else:
-        save_img(id, img)
+        tra_img = embeddings_boxes[0][2]
+        save_img(id, tra_img)
         if id not in embeddings:
             embeddings[id] = []
         embeddings[id].append(embeddings_boxes[0][0])
@@ -84,7 +85,8 @@ def register_faces(id):
     if len(embeddings_boxes) != 1:
         return make_response(jsonify({'error': 'invalid image'}), 403)
     else:
-        save_img(id, img)
+        tra_img = embeddings_boxes[0][2]
+        save_img(id, tra_img)
         if id not in embeddings:
             embeddings[id] = []
         embeddings[id].append(embeddings_boxes[0][0])

@@ -51,7 +51,7 @@ def recong_face_c(model, sess, graph, pnet, rnet, onet, image):
     bbs = []
     rec_ids = []
     for r in result:
-        emb, bb = r
+        emb, bb, _ = r
         embedding_size = emb.shape[0]
         emb_array = np.zeros((1, embedding_size))
         emb_array[0, :] = emb
@@ -93,8 +93,8 @@ def encode_faces(graph, sess, pnet, rnet, onet, image):
     minsize = 20  # minimum size of face
     threshold = [0.1, 0.6, 0.9]  # three steps's threshold
     factor = 0.709  # scale factor
-    face_size = 160
-    margin = 0
+    emb_face_size = 160
+    tra_face_size = 180
 
     if image.ndim == 2:
         image = facenet.to_rgb(image)
@@ -103,22 +103,32 @@ def encode_faces(graph, sess, pnet, rnet, onet, image):
     bounding_boxes, _ = detect_face.detect_face(image, minsize, pnet, rnet, onet, threshold, factor)
     result = []
     nrof_faces = bounding_boxes.shape[0]
-    boxes = np.zeros((nrof_faces, 4), dtype=np.int32)
-    img_list = []
+    emb_boxes = np.zeros((nrof_faces, 4), dtype=np.int32)
+    emb_img_list = []
+    tra_img_list = []
     for i in range(nrof_faces):
-        boxes[i][0] = np.maximum(bounding_boxes[i, 0] - margin / 2, 0)
-        boxes[i][1] = np.maximum(bounding_boxes[i, 1] - margin / 2, 0)
-        boxes[i][2] = np.minimum(bounding_boxes[i, 2] + margin / 2, image_size[1])
-        boxes[i][3] = np.minimum(bounding_boxes[i, 3] + margin / 2, image_size[0])
+        emb_boxes[i][0] = bounding_boxes[i, 0]                                        # x1
+        emb_boxes[i][1] = bounding_boxes[i, 1]                                        # y1
+        emb_boxes[i][2] = bounding_boxes[i, 2]                                        # x2
+        emb_boxes[i][3] = bounding_boxes[i, 3]                                        # y2
 
-        #scipy.misc.imsave('out.jpg', image)
-        cropped = image[boxes[i][1]:boxes[i][3], boxes[i][0]:boxes[i][2], :]
-        aligned = misc.imresize(cropped, (face_size, face_size), interp='bilinear')
-        #scipy.misc.imsave('out_' + str(i) + '.jpg', aligned)
-        prewhitened = facenet.prewhiten(aligned)
-        img_list.append(prewhitened)
+        margin = (bounding_boxes[i, 2] - bounding_boxes[i, 0]) / 4
+        tra_box = np.zeros((4,), dtype=np.int32)
 
-    images = np.stack(img_list)
+        tra_box[0] = np.maximum(bounding_boxes[i, 0] - margin / 2, 0)                 # x1
+        tra_box[1] = np.maximum(bounding_boxes[i, 1] - margin / 2, 0)                 # y1
+        tra_box[2] = np.minimum(bounding_boxes[i, 2] + margin / 2, image_size[1])     # x2
+        tra_box[3] = np.minimum(bounding_boxes[i, 3] + margin / 2, image_size[0])     # y2
+
+        emb_cropped = image[emb_boxes[i][1]:emb_boxes[i][3], emb_boxes[i][0]:emb_boxes[i][2], :]
+        tra_cropped = image[tra_box[1]:tra_box[3], tra_box[0]:tra_box[2], :]
+        emb_aligned = misc.imresize(emb_cropped, (emb_face_size, emb_face_size), interp='bilinear')
+        tra_aligned = misc.imresize(tra_cropped, (tra_face_size, tra_face_size), interp='bilinear')
+        prewhitened = facenet.prewhiten(emb_aligned)
+        emb_img_list.append(prewhitened)
+        tra_img_list.append(tra_aligned)
+
+    images = np.stack(emb_img_list)
 
     images_placeholder = graph.get_tensor_by_name("input:0")
     embeddings = graph.get_tensor_by_name("embeddings:0")
@@ -128,7 +138,7 @@ def encode_faces(graph, sess, pnet, rnet, onet, image):
     embs = sess.run(embeddings, feed_dict=feed_dict)
 
     for i in range(len(embs)):
-       result.append((embs[i], boxes[i]))
+       result.append((embs[i], emb_boxes[i], tra_img_list[i]))
 
     return result
 
