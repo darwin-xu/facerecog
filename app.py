@@ -1,8 +1,9 @@
 #!flask/bin/python
 import os.path
 import os
+import cv2
 import pickle
-import numpy
+import numpy as np
 import json
 import imageio
 from flask import Flask, Response, jsonify, make_response, request
@@ -13,11 +14,11 @@ app = Flask(__name__)
 
 class JSONNumpyEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, numpy.integer):
+        if isinstance(obj, np.integer):
             return int(obj)
-        elif isinstance(obj, numpy.floating):
+        elif isinstance(obj, np.floating):
             return float(obj)
-        elif isinstance(obj, numpy.ndarray):
+        elif isinstance(obj, np.ndarray):
             return obj.tolist()
         else:
             return super(JSONNumpyEncoder, self).default(obj)
@@ -47,14 +48,27 @@ def detect_face_d():
         ids.append(id)
     return make_response(jsonify(generate_response(posbs, boxes, ids), 201))
 
+def save_img(id, img):
+    if not os.path.exists(img_dir):
+        os.makedirs(img_dir)
+    folder = os.path.join(img_dir, id)
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    # img_decode = cv2.imdecode(img, cv2.IMREAD_COLOR)
+    file_num = len(os.listdir(folder))
+    file_name = str(file_num + 1) + '.jpg'
+    # cv2.imwrite(os.path.join(folder, file_name), img_decode)
+    imageio.imwrite(os.path.join(folder, file_name), img)
+
 @app.route('/registerFace/<string:id>', methods=['POST'])
 def register_face(id):
-    imgFile = request.files['file']
-    img = imageio.imread(imgFile)
+    img_file = request.files['file']
+    img = imageio.imread(img_file)
     embeddings_boxes = encode_faces(graph, sess, pnet, rnet, onet, img)
     if len(embeddings_boxes) != 1:
         return make_response(jsonify({'error': 'invalid image'}), 403)
     else:
+        save_img(id, img_file)
         if id not in embeddings:
             embeddings[id] = []
         embeddings[id].append(embeddings_boxes[0][0])
@@ -64,12 +78,13 @@ def register_face(id):
 
 @app.route('/registerFaces/<string:id>', methods=['POST'])
 def register_faces(id):
-    imgFile = request.files['file']
-    img = imageio.imread(imgFile)
+    img_file = request.files['file']
+    img = imageio.imread(img_file)
     embeddings_boxes = encode_faces(graph, sess, pnet, rnet, onet, img)
     if len(embeddings_boxes) != 1:
         return make_response(jsonify({'error': 'invalid image'}), 403)
     else:
+        save_img(id, img)
         if id not in embeddings:
             embeddings[id] = []
         embeddings[id].append(embeddings_boxes[0][0])
@@ -83,6 +98,12 @@ def register_faces_done():
 
 @app.route('/classifyFace', methods=['POST'])
 def classify_face():
+    global model
+    model = make_classifier(sess, graph, embeddings, classifier_filename)
+    return make_response(jsonify({'ok': 'ok'}), 201)
+
+@app.route('/evolve', methods=['POST'])
+def evolve():
     global model
     model = make_classifier(sess, graph, embeddings, classifier_filename)
     return make_response(jsonify({'ok': 'ok'}), 201)
@@ -111,7 +132,9 @@ def remove_face(id):
 global model, sess, graph, embeddings
 embedding_dat_path = './embedding.dat'
 embeddings = {}
-model_path = '../models/20170511-185253'
+# model_path = '../models/20170511-185253'
+model_path = '../models/vggface2-cl'
+img_dir = './images'
 classifier_filename = './my_classifier.pkl'
 if os.path.exists(embedding_dat_path):
     with open(embedding_dat_path, 'rb') as infile:
