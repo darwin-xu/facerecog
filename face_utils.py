@@ -23,6 +23,38 @@ from sklearn.svm import SVC
 from sklearn.externals import joblib
 import scipy
 
+def crossCheckArray(emb1, emb2):
+    embs1 = []
+    embs2 = []
+    actual_issame = []
+    if emb1 is emb2:
+        for i in range(len(emb1) - 1):
+            for j in range(i + 1, len(emb1)):
+                embs1.append(emb1[i])
+                embs2.append(emb1[j])
+                actual_issame.append(True)
+    else:
+        for i in range(len(emb1)):
+            for j in range(len(emb2)):
+                embs1.append(emb1[i])
+                embs2.append(emb2[j])
+                actual_issame.append(False)
+    return embs1, embs2, actual_issame
+
+def crossCheckDict(embeddings):
+    total_embs1 = []
+    total_embs2 = []
+    total_actual_issame = []
+    keys = list(embeddings.keys())
+    for i in range(len(keys)):
+        for j in range(i, len(keys)):
+            embs1, embs2, actual_issame = crossCheckArray(embeddings[keys[i]], embeddings[keys[j]])
+            total_embs1 += embs1
+            total_embs2 += embs2
+            total_actual_issame += actual_issame
+
+    return np.stack(total_embs1), np.stack(total_embs2), total_actual_issame
+
 def load_model(modeldir, classifier_filename):
     print('Creating networks and loading parameters')
     graph = tf.get_default_graph()

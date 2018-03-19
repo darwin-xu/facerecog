@@ -15,7 +15,7 @@ def detect():
     # Default interface
     #base_URL = 'http://49.4.15.32:5000/'
     base_URL = 'http://127.0.0.1:5000/'
-    detect_URL = 'detectFacesC'
+    detect_URL = 'detectFacesD'
 
     if len(sys.argv) < 2:
         print("Usage: Please provide [detect method] <fileName>.")
@@ -43,7 +43,7 @@ def detect():
 
     if response.ok:
         result = json.loads(response.content.decode('utf-8'))
-        print(result)
+        #print(result)
 
         for f in result[0]["faces"]:
             print(f)

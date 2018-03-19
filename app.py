@@ -6,8 +6,9 @@ import pickle
 import numpy as np
 import json
 import imageio
+import facenet
 from flask import Flask, Response, jsonify, make_response, request
-from face_utils import encode_faces, load_model, recong_face_c, generate_response, search_face_by_distance
+from face_utils import encode_faces, load_model, recong_face_c, generate_response, search_face_by_distance, crossCheckDict
 from make_classifier import make_classifier
 
 app = Flask(__name__)
@@ -41,6 +42,12 @@ def detect_face_d():
     posbs = []
     boxes = []
     ids = []
+
+    embs1, embs2, ist = crossCheckDict(embeddings)
+    thresholds = np.arange(0, 4, 0.01)
+    tpr, fpr, accuracy = facenet.calculate_roc(thresholds, embs1, embs2, np.asarray(ist))
+    print("tpr, fpr, accuracy: ", accuracy)
+
     for emb, box, _ in embeddings_boxes:
         id, pos = search_face_by_distance(embeddings, emb)
         posbs.append(pos)
