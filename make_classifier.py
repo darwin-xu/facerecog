@@ -13,8 +13,8 @@ import math
 import pickle
 from sklearn.svm import SVC
 
-def make_classifier(sess, graph, emb_dict, classifier_filename):
-    # print('FKFKFKFKFKFKKFKFKFKFKFKFKFKFKKFKFKFKFKFKFKKFKFKFKKFKFKFKFKKFKFKFKKFKFKFK')
+def make_classifier(sess, graph, emb_dict, classifier_filename, kernal = 'linear'):
+    # print('make_classifier with' + )
     classifier_filename_exp = os.path.expanduser(classifier_filename)
 
     nrof_embs = 0 
@@ -37,7 +37,7 @@ def make_classifier(sess, graph, emb_dict, classifier_filename):
 
     # Train classifier
     print('Training classifier')
-    model = SVC(kernel='linear', probability=True)
+    model = SVC(kernel=kernal, probability=True)
     model.fit(emb_array, labels)
 
     # Saving classifier model
