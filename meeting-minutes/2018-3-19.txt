@@ -1,0 +1,4 @@
+1. We are going to release the demo to client on Tuesday or Wednesday.
+2. Rocky take responsible for optimize the dectectFacesC.
+3. Darwin continue the optimization of the threshold of dectectFacesD.
+4. Kevin prepare the user guide for the test client.
