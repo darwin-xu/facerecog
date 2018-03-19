@@ -57,8 +57,10 @@ def upload_files():
         
     upload_file_done()
 
+# base_uri = 'http://49.4.15.32:5000'
+base_uri = 'http://127.0.0.1:5000'
+
 def upload_file(username, image_paths):
-    base_uri = 'http://49.4.15.32:5000'
 
     # Iterate current folder and upload to server
     # files = (os.listdir(folder))
@@ -82,7 +84,6 @@ def upload_file(username, image_paths):
             print(response)
 
 def upload_file_done():
-    base_uri = 'http://49.4.15.32:5000'
 
     url_register_done = base_uri + "/registerFacesDone"
    

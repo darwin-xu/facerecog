@@ -5,13 +5,15 @@ import sys
 import requests
 import cv2
 import imgUtil
+import classify
 
 
 def upload_file():
     """Upload file."""
     username = ""
     folder = ""
-    base_uri = 'http://127.0.0.1:5000'
+    # base_URL = 'http://127.0.0.1:5000/'
+    base_uri = 'http://49.4.15.32:5000'
 
     if len(sys.argv) != 3:
         print("Usage: Please provide <username> and <upload_folder>.")
@@ -31,7 +33,7 @@ def upload_file():
         thumbnail = imgUtil.resize_image(fileFullName)
         if thumbnail is None:
             continue
-            
+
         result = cv2.imencode('.jpg', thumbnail)[1].tostring()
         files = {'file': result}
         response = requests.post(url_register, files=files)
@@ -46,3 +48,5 @@ def upload_file():
 
 
 upload_file()
+
+classify.classify()
