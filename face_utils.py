@@ -102,10 +102,10 @@ def distance(emb1, emb2):
     dist = np.sqrt(np.sum(np.square(np.subtract(emb1, emb2))))
     return dist
 
-def search_face_by_distance(embeddings, tofind):
+def search_face_by_distance(embeddings, tofind, threshold):
     min_dist = 1000.0
     min_id = ''
-    threshold = 0.51
+    #threshold = 0.51
     for id, embs in embeddings.items():
         for emb in embs:
             dist = distance(emb, tofind)

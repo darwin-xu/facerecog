@@ -1,4 +1,5 @@
 #!flask/bin/python
+import sys
 import os.path
 import os
 import cv2
@@ -31,8 +32,8 @@ global model, sess, graph, embeddings, img_dir
 
 embedding_dat_path = './embedding.dat'
 embeddings = {}
-# model_path = '../models/20170511-185253'
-model_path = '../models/vggface2-cl'
+model_path = '../models/20180319-103741'
+#model_path = '../models/vggface2-cl'
 img_dir = './images'
 detect_img_dir = './detect_images'
 classifier_filename = './my_classifier.pkl'
@@ -76,11 +77,13 @@ def detect_face_d():
 
     embs1, embs2, ist = crossCheckDict(embeddings)
     thresholds = np.arange(0, 4, 0.01)
-    tpr, fpr, accuracy = facenet.calculate_roc(thresholds, embs1, embs2, np.asarray(ist))
-    print("tpr, fpr, accuracy: ", accuracy)
+    tpr, fpr, accuracy, threshold = facenet.calculate_roc(thresholds, embs1, embs2, np.asarray(ist))
+    print("accuracy: ", accuracy)
+    print("thresholds:", threshold)
+    sys.stdout.flush()
 
     for emb, box, _ in embeddings_boxes:
-        id, pos = search_face_by_distance(embeddings, emb)
+        id, pos = search_face_by_distance(embeddings, emb, threshold)
         posbs.append(pos)
         boxes.append(box)
         ids.append(id)
