@@ -46,6 +46,7 @@ def upload_file():
         else:
             print(response)
 
+        sys.stdout.flush()
 
 upload_file()
 
