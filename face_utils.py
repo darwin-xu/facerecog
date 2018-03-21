@@ -139,12 +139,12 @@ def encode_faces(graph, sess, pnet, rnet, onet, image):
     emb_img_list = []
     tra_img_list = []
     for i in range(nrof_faces):
-        emb_boxes[i][0] = bounding_boxes[i, 0]                                        # x1
-        emb_boxes[i][1] = bounding_boxes[i, 1]                                        # y1
-        emb_boxes[i][2] = bounding_boxes[i, 2]                                        # x2
-        emb_boxes[i][3] = bounding_boxes[i, 3]                                        # y2
+        emb_boxes[i][0] = np.maximum(bounding_boxes[i, 0], 0)                         # x1
+        emb_boxes[i][1] = np.maximum(bounding_boxes[i, 1], 0)                         # y1
+        emb_boxes[i][2] = np.minimum(bounding_boxes[i, 2], image_size[1])             # x2
+        emb_boxes[i][3] = np.minimum(bounding_boxes[i, 3], image_size[0])             # y2
 
-        margin = (bounding_boxes[i, 2] - bounding_boxes[i, 0]) / 4
+        margin = (bounding_boxes[i, 2] - bounding_boxes[i, 0]) / 8
         tra_box = np.zeros((4,), dtype=np.int32)
 
         tra_box[0] = np.maximum(bounding_boxes[i, 0] - margin / 2, 0)                 # x1
