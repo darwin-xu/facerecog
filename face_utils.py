@@ -59,7 +59,7 @@ def load_model(modeldir, classifier_filename):
     print('Creating networks and loading parameters')
     graph = tf.get_default_graph()
     with graph.as_default():
-        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.25)
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
         sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
         with sess.as_default():
             pnet, rnet, onet = detect_face.create_mtcnn(sess, '../facenet/src/align')
@@ -88,14 +88,20 @@ def recong_face_c(model, sess, graph, pnet, rnet, onet, image):
         emb_array = np.zeros((1, embedding_size))
         emb_array[0, :] = emb
         predictions = model.predict_proba(emb_array)
-        print (predictions)
-        best_class_indices = np.argmax(predictions, axis=1)
-        print (best_class_indices)
-        best_class_probabilities = predictions[np.arange(len(best_class_indices)), best_class_indices]
-        print (best_class_probabilities)
-        pos.append(best_class_probabilities[0])
-        bbs.append(bb)
-        rec_ids.append(model.classes_[best_class_indices[0]])
+        # print (predictions)
+        posibs = np.argpartition(predictions[0], -2)[-2:]
+        print(model.classes_[posibs[1]])
+        print (predictions[0][posibs[1]])
+        print(model.classes_[posibs[0]])
+        print (predictions[0][posibs[0]])
+        if (predictions[0][posibs[1]] > predictions[0][posibs[0]] * 2.0):
+            print ('yes')
+            # best_class_indices = np.argmax(predictions, axis=1)
+            # print (best_class_indices)
+            best_class_probabilities = predictions[0][posibs[1]]
+            pos.append(best_class_probabilities)
+            bbs.append(bb)
+            rec_ids.append(model.classes_[posibs[1]])
     return pos, bbs, rec_ids
 
 def distance(emb1, emb2):
