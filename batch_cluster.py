@@ -226,7 +226,13 @@ def main(args):
             counter  = 0
             
             batch_start_time = time.time()
-            for x in range(len(train_set)):  
+            for x in range(len(train_set)):
+                dest_dir = join(args.output, train_set[x].name)
+                if not exists(dest_dir):
+                    makedirs(dest_dir)
+                else:
+                    continue
+
                 start_time = time.time()
                 counter += 1
                 print(counter)
@@ -239,13 +245,10 @@ def main(args):
                 sorted_clusters = cluster_facial_encodings(facial_encodings)
                 num_cluster = len(sorted_clusters)
                 
-                dest_dir = join(args.output, train_set[x].name)
                 # Copy image files to cluster folders
                 for idx, cluster in enumerate(sorted_clusters):
                     #这个是保存聚类后所有类别
                     # cluster_dir = join(dest_dir, str(idx))
-                    if not exists(dest_dir):
-                        makedirs(dest_dir)
                     for path in cluster:
                         # shutil.copy(path, join(cluster_dir, basename(path)))
                         shutil.copy(path, join(dest_dir, str(idx) + '_' + basename(path)))
