@@ -258,6 +258,8 @@ def load_data(image_paths, do_random_crop, do_random_flip, image_size, do_prewhi
         img = misc.imread(image_paths[i])
         if img.ndim == 2:
             img = to_rgb(img)
+        if img.ndim != 3:
+            print(image_paths[i], "img.ndim", img.ndim, "type", type(img))
         if do_prewhiten:
             img = prewhiten(img)
         img = crop(img, do_random_crop, image_size)
