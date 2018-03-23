@@ -231,6 +231,7 @@ def main(args):
                 if not exists(dest_dir):
                     makedirs(dest_dir)
                 else:
+                    print("Skipping folder: ", dest_dir)
                     continue
 
                 start_time = time.time()
