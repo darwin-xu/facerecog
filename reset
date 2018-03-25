@@ -3,3 +3,4 @@
 rm -rf images
 rm -rf my_classifier.pkl
 rm -rf embedding.dat
+rm -rf detect_images
