@@ -1,0 +1,3 @@
+#!/bin/bash
+
+nohup /usr/bin/python36 batch_cluster.py --model_dir ../models/20170512-110547 --batch_size 50 --input /data/msceleb_mtcnnpy_182 --output /data/msceleb_washed-20170512-110547 --gpu_memory_fraction 0.2 > wash.log 2>&1 &

@@ -109,3 +109,4 @@ venv.bak/
 *.dat
 *.zip
 *.pkl
+*.log

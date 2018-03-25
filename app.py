@@ -2,7 +2,6 @@
 import sys
 import os.path
 import os
-import cv2
 import pickle
 import numpy as np
 import json
@@ -32,7 +31,7 @@ global model, sess, graph, embeddings, img_dir
 
 embedding_dat_path = './embedding.dat'
 embeddings = {}
-model_path = '../models/20180319-103741'
+model_path = sys.argv[1]
 #model_path = '../models/vggface2-cl'
 img_dir = './images'
 detect_img_dir = './detect_images'
@@ -188,7 +187,6 @@ def remove_face(id):
             shutil.rmtree(id_dir)
         return make_response(jsonify({'ok': 'ok'}), 201)
     return make_response(jsonify({'error': 'invalid id'}), 403)
-    
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=False, threaded=True, use_reloader=False)
