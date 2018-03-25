@@ -17,6 +17,8 @@ def detect():
     # base_URL = 'http://127.0.0.1:5000/'
     detect_URL = 'detectFacesD'
 
+    dontShow = False
+
     if len(sys.argv) < 2:
         print("Usage: Please provide [detect method] <fileName>.")
         print("   -c for detectFacesC")
@@ -28,6 +30,8 @@ def detect():
                 detect_URL = 'detectFacesC'
             elif sys.argv[i].startswith('-d'):
                 detect_URL = 'detectFacesD'
+            elif sys.argv[i].startswith('-n'):
+                dontShow = True
             else:
                 img = sys.argv[i]
                 filename_withoutext = os.path.splitext(sys.argv[i])[0]
@@ -39,29 +43,31 @@ def detect():
 
     response = requests.post(base_URL + detect_URL, files=files)
 
-    #print(response)
+    # print(response)
 
     if response.ok:
         result = json.loads(response.content.decode('utf-8'))
-        #print(result)
+        # print(result)
 
         for f in result[0]["faces"]:
             print(f)
             cv2.rectangle(thumbnail, (f["x1"], f["y1"]),
-                            (f["x2"], f["y2"]), (0, 0, 255), 2)
+                          (f["x2"], f["y2"]), (0, 0, 255), 2)
             font = cv2.FONT_HERSHEY_SIMPLEX
             # Add name on top of the rectangle
             poss = f["possibility"]
             cv2.putText(thumbnail, f["id"] + " " + f'{poss:.2f}', (f["x1"], f["y2"] + 30), font,
                         1, (255, 255, 255), 1, cv2.LINE_AA)
 
+        if not dontShow:
+            cv2.imshow("image", thumbnail)
 
-        cv2.imshow("image", thumbnail)
         cv2.imwrite(filename_withoutext + "_dt.jpg", thumbnail)
+
+        if not dontShow:
+            if cv2.waitKey(0) & 0xFF == ord('q'):
+                print("release resoure...")
+                cv2.destroyAllWindows()
 
 
 detect()
-
-if cv2.waitKey(0) & 0xFF == ord('q'):
-    print("release resoure...")
-    cv2.destroyAllWindows()
