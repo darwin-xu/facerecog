@@ -59,7 +59,7 @@ def load_model(modeldir, classifier_filename):
     print('Creating networks and loading parameters')
     graph = tf.get_default_graph()
     with graph.as_default():
-        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.3)
         sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
         with sess.as_default():
             pnet, rnet, onet = detect_face.create_mtcnn(sess, '../facenet/src/align')
