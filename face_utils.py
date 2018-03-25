@@ -6,7 +6,6 @@ import os.path
 from sys import argv
 import tensorflow as tf
 from scipy import misc
-import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
@@ -23,17 +22,32 @@ from sklearn.svm import SVC
 from sklearn.externals import joblib
 import scipy
 
-def crossCheckArray(emb1, emb2):
+
+def randomSelect(items, count):
+    idx = np.random.choice(len(items), np.minimum(
+        len(items), count), replace=False)
+    ret = []
+    for i in idx:
+        ret.append(items[i])
+    return ret
+
+
+def crossCheckArray(emb1, emb2, fullCheck, subsetSize):
     embs1 = []
     embs2 = []
     actual_issame = []
     if emb1 is emb2:
+        if not fullCheck:
+            emb1 = randomSelect(emb1, subsetSize)
         for i in range(len(emb1) - 1):
             for j in range(i + 1, len(emb1)):
                 embs1.append(emb1[i])
                 embs2.append(emb1[j])
                 actual_issame.append(True)
     else:
+        if not fullCheck:
+            emb1 = randomSelect(emb1, subsetSize)
+            emb2 = randomSelect(emb2, subsetSize)
         for i in range(len(emb1)):
             for j in range(len(emb2)):
                 embs1.append(emb1[i])
@@ -41,19 +55,24 @@ def crossCheckArray(emb1, emb2):
                 actual_issame.append(False)
     return embs1, embs2, actual_issame
 
-def crossCheckDict(embeddings):
+
+def crossCheckDict(embeddings, fullCheck=False):
     total_embs1 = []
     total_embs2 = []
     total_actual_issame = []
     keys = list(embeddings.keys())
+    if not fullCheck:
+        keys = randomSelect(keys, 100)
     for i in range(len(keys)):
         for j in range(i, len(keys)):
-            embs1, embs2, actual_issame = crossCheckArray(embeddings[keys[i]], embeddings[keys[j]])
+            embs1, embs2, actual_issame = crossCheckArray(
+                embeddings[keys[i]], embeddings[keys[j]], fullCheck, int(400 / len(keys)))
             total_embs1 += embs1
             total_embs2 += embs2
             total_actual_issame += actual_issame
 
     return np.stack(total_embs1), np.stack(total_embs2), total_actual_issame
+
 
 def load_model(modeldir, classifier_filename):
     print('Creating networks and loading parameters')
@@ -201,13 +220,12 @@ def main(argv=None):
         argv = sys.argv
     model, sess, graph, ids, pnet, rnet, onet = load_model('../models/20170511-185253', '../models/my_classifier.pkl')
     #test_image(model, sess, graph, class_names, pnet, rnet, onet, argv[1])
-    frame = cv2.imread('./3p.jpg')
+    frame = imageio.imread('./3p.jpg')
     print(frame.shape)
     pos, bbs, rec_ids = recong_face_c(model, sess, graph, ids, pnet, rnet, onet, frame)
     print(pos)
     print(bbs)
     print(rec_ids)
-    cv2.destroyAllWindows()
     print(generate_response(pos, bbs, rec_ids))
 
 if __name__ == "__main__":

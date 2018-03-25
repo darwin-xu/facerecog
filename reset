@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 rm -rf images
 rm -rf my_classifier.pkl

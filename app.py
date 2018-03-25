@@ -48,10 +48,8 @@ def save_detect_img(id, img):
     folder = os.path.join(img_dir, id)
     if not os.path.exists(folder):
         os.makedirs(folder)
-    # img_decode = cv2.imdecode(img, cv2.IMREAD_COLOR)
     file_num = len(os.listdir(folder))
     file_name = str(file_num + 1) + '.jpg'
-    # cv2.imwrite(os.path.join(folder, file_name), img_decode)
     imageio.imwrite(os.path.join(folder, file_name), img)
 
 @app.route('/detectFacesC', methods=['POST'])
@@ -78,7 +76,14 @@ def detect_face_d():
     thresholds = np.arange(0, 4, 0.01)
     tpr, fpr, accuracy, threshold = facenet.calculate_roc(thresholds, embs1, embs2, np.asarray(ist))
     print("accuracy: ", accuracy)
-    print("thresholds:", threshold)
+    print("partial thresholds:", threshold)
+    sys.stdout.flush()
+
+    embs1, embs2, ist = crossCheckDict(embeddings, True)
+    thresholds = np.arange(0, 4, 0.01)
+    tpr, fpr, accuracy, threshold = facenet.calculate_roc(thresholds, embs1, embs2, np.asarray(ist))
+    print("accuracy: ", accuracy)
+    print("full thresholds:", threshold)
     sys.stdout.flush()
 
     for emb, box, _ in embeddings_boxes:
@@ -96,10 +101,8 @@ def save_img(id, img, parent = img_dir, possibility = 0):
     folder = os.path.join(parent, id)
     if not os.path.exists(folder):
         os.makedirs(folder)
-    # img_decode = cv2.imdecode(img, cv2.IMREAD_COLOR)
     file_num = len(os.listdir(folder))
     file_name = str(file_num + 1) + '_' + str(possibility) + '.jpg'
-    # cv2.imwrite(os.path.join(folder, file_name), img_decode)
     imageio.imwrite(os.path.join(folder, file_name), img)
 
 @app.route('/registerFace/<string:id>', methods=['POST'])
