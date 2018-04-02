@@ -82,6 +82,7 @@ with tf.Graph().as_default():
  #                   frame = facenet.to_rgb(frame)
                 frame = frame[:, :, 0:3]
                 bounding_boxes, _ = detect_face.detect_face(frame, minsize, pnet, rnet, onet, threshold, factor)
+                print ('done with in ' + str(time.time() - curTime) + ' seconds')
                 nrof_faces = bounding_boxes.shape[0]
                 print('Detected_FaceNum: %d' % nrof_faces)
 
