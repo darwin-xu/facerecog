@@ -32,6 +32,7 @@ app.json_encoder = JSONNumpyEncoder
 
 global model, sess, graph, embeddings, img_dir
 
+threshold = 0
 embedding_dat_path = './embedding.dat'
 embeddings = {}
 model_path = sys.argv[1]
@@ -73,32 +74,22 @@ def detect_face_c():
 
 @app.route('/detectFacesD', methods=['POST'])
 def detect_face_d():
-    m1 = int(round(time.time() * 1000))
     imgFile = request.files['file']
     img = imageio.imread(imgFile)
     embeddings_boxes = encode_faces(graph, sess, pnet, rnet, onet, img)
     posbs = []
     boxes = []
     ids = []
-    m2 = int(round(time.time() * 1000))
 
-    embs1, embs2, ist = crossCheckDict(embeddings)
-    thresholds = np.arange(0, 4, 0.01)
-    tpr, fpr, accuracy, threshold = facenet.calculate_roc(
-        thresholds, embs1, embs2, np.asarray(ist))
-    print("accuracy: ", accuracy)
-    print("partial thresholds:", threshold)
-    sys.stdout.flush()
-    m3 = int(round(time.time() * 1000))
-
-    embs1, embs2, ist = crossCheckDict(embeddings, True)
-    thresholds = np.arange(0, 4, 0.01)
-    tpr, fpr, accuracy, threshold = facenet.calculate_roc(
-        thresholds, embs1, embs2, np.asarray(ist))
-    print("accuracy: ", accuracy)
-    print("full thresholds:", threshold)
-    sys.stdout.flush()
-    m4 = int(round(time.time() * 1000))
+    global threshold
+    if threshold == 0:
+        embs1, embs2, ist = crossCheckDict(embeddings)
+        thresholds = np.arange(0, 4, 0.01)
+        tpr, fpr, accuracy, threshold = facenet.calculate_roc(
+            thresholds, embs1, embs2, np.asarray(ist))
+        print("accuracy: ", accuracy)
+        print("partial thresholds:", threshold)
+        sys.stdout.flush()
 
     for emb, box, _ in embeddings_boxes:
         id, pos = search_face_by_distance(embeddings, emb, threshold)
@@ -107,11 +98,6 @@ def detect_face_d():
         ids.append(id)
         img_cropped = img[box[1]:box[3], box[0]:box[2], :]
         save_img(id, img_cropped, detect_img_dir, pos)
-    m5 = int(round(time.time() * 1000))
-    print("step 1", m2 - m1)
-    print("step 2", m3 - m2)
-    print("step 3", m4 - m3)
-    print("step 4", m5 - m4)
     return make_response(jsonify(generate_response(posbs, boxes, ids), 201))
 
 
@@ -134,6 +120,8 @@ def register_face(id):
     if len(embeddings_boxes) != 1:
         return make_response(jsonify({'error': 'invalid image'}), 403)
     else:
+        global threshold
+        threshold = 0
         tra_img = embeddings_boxes[0][2]
         save_img(id, tra_img)
         if id not in embeddings:
@@ -152,6 +140,8 @@ def register_faces(id):
     if len(embeddings_boxes) != 1:
         return make_response(jsonify({'error': 'invalid image'}), 403)
     else:
+        global threshold
+        threshold = 0
         tra_img = embeddings_boxes[0][2]
         save_img(id, tra_img)
         if id not in embeddings:
