@@ -6,6 +6,7 @@ import requests
 import cv2
 import imgUtil
 import os
+from param import base_uri
 
 
 def detect():
@@ -13,9 +14,7 @@ def detect():
     img = ""
 
     # Default interface
-    base_URL = 'http://49.4.15.32:5000/'
-    # base_URL = 'http://127.0.0.1:5000/'
-    detect_URL = 'detectFacesD'
+    detect_uri = '/detectFacesD'
 
     dontShow = False
 
@@ -27,9 +26,9 @@ def detect():
     else:
         for i in range(1, len(sys.argv)):
             if sys.argv[i].startswith('-c'):
-                detect_URL = 'detectFacesC'
+                detect_uri = '/detectFacesC'
             elif sys.argv[i].startswith('-d'):
-                detect_URL = 'detectFacesD'
+                detect_uri = '/detectFacesD'
             elif sys.argv[i].startswith('-n'):
                 dontShow = True
             else:
@@ -41,7 +40,7 @@ def detect():
     result = cv2.imencode('.jpg', thumbnail)[1].tostring()
     files = {'file': result}
 
-    response = requests.post(base_URL + detect_URL, files=files)
+    response = requests.post(base_uri + detect_uri, files=files)
 
     # print(response)
 

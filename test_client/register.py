@@ -6,14 +6,13 @@ import requests
 import cv2
 import imgUtil
 import classify
+from param import base_uri
 
 
 def upload_file():
     """Upload file."""
     username = ""
     folder = ""
-    # base_URL = 'http://127.0.0.1:5000/'
-    base_uri = 'http://49.4.15.32:5000'
 
     if len(sys.argv) != 3:
         print("Usage: Please provide <username> and <upload_folder>.")
@@ -47,6 +46,7 @@ def upload_file():
             print(response)
 
         sys.stdout.flush()
+
 
 upload_file()
 
