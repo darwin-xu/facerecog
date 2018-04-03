@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"    
 import os.path
 from sys import argv
 import tensorflow as tf
@@ -12,7 +14,7 @@ import numpy as np
 import argparse
 import facenet
 import detect_face
-import os
+#import os
 from os.path import join as pjoin
 import sys
 import time
