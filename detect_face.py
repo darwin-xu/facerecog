@@ -33,6 +33,7 @@ import tensorflow as tf
 #from math import floor
 import cv2
 import os
+import time
 
 def layer(op):
     '''Decorator for composable network layers.'''
@@ -301,6 +302,8 @@ def detect_face(img, minsize, pnet, rnet, onet, threshold, factor):
     # pnet, rnet, onet: caffemodel
     # threshold: threshold=[th1 th2 th3], th1-3 are three steps's threshold
     # fastresize: resize img from last scale (using in high-resolution images) if fastresize==true
+    start = time.time()
+    print ("enter detect_face")
     factor_count=0
     total_boxes=np.empty((0,9))
     points=[]
@@ -316,6 +319,9 @@ def detect_face(img, minsize, pnet, rnet, onet, threshold, factor):
         minl = minl*factor
         factor_count += 1
 
+    cost = time.time() - start
+    pre_cost = cost
+    print ("create scale pyramid cost: " + str(cost) + "seconds")
     # first stage
     for j in range(len(scales)):
         scale=scales[j]
@@ -338,6 +344,10 @@ def detect_face(img, minsize, pnet, rnet, onet, threshold, factor):
             total_boxes = np.append(total_boxes, boxes, axis=0)
 
     numbox = total_boxes.shape[0]
+
+    cost = time.time() - start - pre_cost
+    pre_cost += cost
+    print ("first stage cost: " + str(cost) + "seconds")
     if numbox>0:
         pick = nms(total_boxes.copy(), 0.7, 'Union')
         total_boxes = total_boxes[pick,:]
@@ -379,6 +389,11 @@ def detect_face(img, minsize, pnet, rnet, onet, threshold, factor):
             total_boxes = rerec(total_boxes.copy())
 
     numbox = total_boxes.shape[0]
+
+    cost = time.time() - start - pre_cost
+    pre_cost += cost
+    print ("second stage cost: " + str(cost) + "seconds")
+
     if numbox>0:
         # third stage
         total_boxes = np.fix(total_boxes).astype(np.int32)
@@ -414,6 +429,10 @@ def detect_face(img, minsize, pnet, rnet, onet, threshold, factor):
             total_boxes = total_boxes[pick,:]
             points = points[:,pick]
                 
+    cost = time.time() - start - pre_cost
+    pre_cost += cost
+    print ("third stage cost: " + str(cost) + "seconds")
+    
     return total_boxes, points
 
 
