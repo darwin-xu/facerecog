@@ -69,6 +69,7 @@ def detect_face_c():
     for i in range(len(posbs)):
         img_cropped = img[bbs[i][1]:bbs[i][3], bbs[i][0]:bbs[i][2], :]
         save_img(recg_ids[i], img_cropped, detect_img_dir, posbs[i])
+    sys.stdout.flush()
     return make_response(jsonify(generate_response(posbs, bbs, recg_ids), 201))
 
 
@@ -98,6 +99,7 @@ def detect_face_d():
         ids.append(id)
         img_cropped = img[box[1]:box[3], box[0]:box[2], :]
         save_img(id, img_cropped, detect_img_dir, pos)
+    sys.stdout.flush()
     return make_response(jsonify(generate_response(posbs, boxes, ids), 201))
 
 
@@ -117,6 +119,7 @@ def register_face(id):
     img_file = request.files['file']
     img = imageio.imread(img_file)
     embeddings_boxes = encode_faces(graph, sess, pnet, rnet, onet, img)
+    sys.stdout.flush()
     if len(embeddings_boxes) != 1:
         return make_response(jsonify({'error': 'invalid image'}), 403)
     else:
@@ -137,6 +140,7 @@ def register_faces(id):
     img_file = request.files['file']
     img = imageio.imread(img_file)
     embeddings_boxes = encode_faces(graph, sess, pnet, rnet, onet, img)
+    sys.stdout.flush()
     if len(embeddings_boxes) != 1:
         return make_response(jsonify({'error': 'invalid image'}), 403)
     else:
@@ -161,6 +165,7 @@ def register_faces_done():
 def classify_face():
     global model
     model = make_classifier(sess, graph, embeddings, classifier_filename)
+    sys.stdout.flush()
     return make_response(jsonify({'ok': 'ok'}), 201)
 
 
