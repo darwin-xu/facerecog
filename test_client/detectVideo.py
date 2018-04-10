@@ -26,6 +26,7 @@ while (True):
         files = {'file': jpg}
         response = requests.post(base_uri + detect_uri, files=files)
         m3 = int(round(time.time() * 1000))
+        print ("get response cost: " + str(m3 - last) + " milliseconds")
 
         if response.ok:
             result = json.loads(response.content.decode('utf-8'))

@@ -15,6 +15,7 @@ import os
 from os.path import join as pjoin
 import sys
 import time
+from functools import wraps
 import copy
 import math
 import pickle
@@ -22,6 +23,15 @@ from sklearn.svm import SVC
 from sklearn.externals import joblib
 import scipy
 
+def timed(f):
+  @wraps(f)
+  def wrapper(*args, **kwds):
+    start = time.time()
+    result = f(*args, **kwds)
+    elapsed = time.time() - start
+    print ("%s took %f second to finish" % (f.__name__, elapsed))
+    return result
+  return wrapper
 
 def randomSelect(items, count):
     idx = np.random.choice(
@@ -100,9 +110,12 @@ def load_model(modeldir, classifier_filename):
 
     return model, sess, graph, pnet, rnet, onet
 
-
+@timed
 def recong_face_c(model, sess, graph, pnet, rnet, onet, image):
+    now = int(round(time.time() * 1000))
     result = encode_faces(graph, sess, pnet, rnet, onet, image)
+    last = int(round(time.time() * 1000))
+    print ("detect face cost: " + str(last - now) + " milliseconds")
     # print ("the result array's shape: " + str(emb_array.shape))
     pos = []
     bbs = []
@@ -127,6 +140,7 @@ def recong_face_c(model, sess, graph, pnet, rnet, onet, image):
             pos.append(best_class_probabilities)
             bbs.append(bb)
             rec_ids.append(model.classes_[posibs[1]])
+    print ("recong face c cost: " + str(int(round(time.time() * 1000)) - last) + " milliseconds")
     return pos, bbs, rec_ids
 
 
@@ -134,7 +148,7 @@ def distance(emb1, emb2):
     dist = np.sqrt(np.sum(np.square(np.subtract(emb1, emb2))))
     return dist
 
-
+@timed
 def search_face_by_distance(embeddings, tofind, threshold):
     min_dist = 1000.0
     min_id = ''
@@ -154,7 +168,7 @@ def search_face_by_distance(embeddings, tofind, threshold):
 
     return min_id, min_dist
 
-
+@timed
 def encode_faces(graph, sess, pnet, rnet, onet, image):
     minsize = 20  # minimum size of face
     threshold = [0.1, 0.6, 0.9]  # three steps's threshold

@@ -2,6 +2,7 @@
 import sys
 import os.path
 import os
+# os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 import pickle
 import numpy as np
 import json
@@ -10,11 +11,10 @@ import facenet
 import shutil
 import time
 from flask import Flask, Response, jsonify, make_response, request
-from face_utils import encode_faces, load_model, recong_face_c, generate_response, search_face_by_distance, crossCheckDict
+from face_utils import encode_faces, load_model, recong_face_c, generate_response, search_face_by_distance, crossCheckDict, timed
 from make_classifier import make_classifier
 
 app = Flask(__name__)
-
 
 class JSONNumpyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -58,14 +58,14 @@ def save_detect_img(id, img):
     file_name = str(file_num + 1) + '.jpg'
     imageio.imwrite(os.path.join(folder, file_name), img)
 
-
 @app.route('/detectFacesC', methods=['POST'])
+@timed
 def detect_face_c():
     imgFile = request.files['file']
     img = imageio.imread(imgFile)
     posbs, bbs, recg_ids = recong_face_c(model, sess, graph, pnet, rnet, onet,
                                          img)
-
+    
     for i in range(len(posbs)):
         img_cropped = img[bbs[i][1]:bbs[i][3], bbs[i][0]:bbs[i][2], :]
         save_img(recg_ids[i], img_cropped, detect_img_dir, posbs[i])
@@ -74,6 +74,7 @@ def detect_face_c():
 
 
 @app.route('/detectFacesD', methods=['POST'])
+@timed
 def detect_face_d():
     imgFile = request.files['file']
     img = imageio.imread(imgFile)
@@ -102,7 +103,6 @@ def detect_face_d():
     sys.stdout.flush()
     return make_response(jsonify(generate_response(posbs, boxes, ids), 201))
 
-
 def save_img(id, img, parent=img_dir, possibility=0):
     if not os.path.exists(parent):
         os.makedirs(parent)
@@ -113,8 +113,8 @@ def save_img(id, img, parent=img_dir, possibility=0):
     file_name = str(file_num + 1) + '_' + str(possibility) + '.jpg'
     imageio.imwrite(os.path.join(folder, file_name), img)
 
-
 @app.route('/registerFace/<string:id>', methods=['POST'])
+@timed
 def register_face(id):
     img_file = request.files['file']
     img = imageio.imread(img_file)
@@ -134,8 +134,8 @@ def register_face(id):
             pickle.dump(embeddings, outfile)
         return make_response(jsonify({'ok': 'ok'}), 201)
 
-
 @app.route('/registerFaces/<string:id>', methods=['POST'])
+@timed
 def register_faces(id):
     img_file = request.files['file']
     img = imageio.imread(img_file)
@@ -153,43 +153,43 @@ def register_faces(id):
         embeddings[id].append(embeddings_boxes[0][0])
         return make_response(jsonify({'ok': 'ok'}), 201)
 
-
 @app.route('/registerFacesDone', methods=['POST'])
+@timed
 def register_faces_done():
     with open(embedding_dat_path, 'wb') as outfile:
         pickle.dump(embeddings, outfile)
     return make_response(jsonify({'ok': 'ok'}), 201)
 
-
 @app.route('/classifyFace', methods=['POST'])
+@timed
 def classify_face():
     global model
     model = make_classifier(sess, graph, embeddings, classifier_filename)
     sys.stdout.flush()
     return make_response(jsonify({'ok': 'ok'}), 201)
 
-
 @app.route('/classifyFace_rbf', methods=['POST'])
+@timed
 def classify_face_rbf():
     global model
     model = make_classifier(sess, graph, embeddings, classifier_filename,
                             'rbf')
     return make_response(jsonify({'ok': 'ok'}), 201)
 
-
 @app.route('/evolve', methods=['POST'])
+@timed
 def evolve():
     global model
     model = make_classifier(sess, graph, embeddings, classifier_filename)
     return make_response(jsonify({'ok': 'ok'}), 201)
 
-
 @app.route('/getIds', methods=['GET'])
+@timed
 def get_ids():
     return json.dumps(list(model.classes_))
 
-
 @app.route('/removeFace', methods=['DELETE'])
+@timed
 def remove_faces():
     global embeddings
     embeddings = {}
@@ -201,8 +201,8 @@ def remove_faces():
 
     return make_response(jsonify({'ok': 'ok'}), 201)
 
-
 @app.route('/removeFace/<string:id>', methods=['DELETE'])
+@timed
 def remove_face(id):
     global embeddings
     if id in embeddings:
@@ -215,7 +215,6 @@ def remove_face(id):
             shutil.rmtree(id_dir)
         return make_response(jsonify({'ok': 'ok'}), 201)
     return make_response(jsonify({'error': 'invalid id'}), 403)
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=False, threaded=True, use_reloader=False)

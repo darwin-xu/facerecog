@@ -5,6 +5,7 @@ import sys
 import requests
 import cv2
 import imgUtil
+from param import base_uri
 
 class ImageClass():
     "Stores the paths to images for a given class"
@@ -57,8 +58,6 @@ def upload_files():
         
     upload_file_done()
 
-# base_uri = 'http://49.4.15.32:5000'
-base_uri = 'http://127.0.0.1:5000'
 
 def upload_file(username, image_paths):
 
