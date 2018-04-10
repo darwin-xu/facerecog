@@ -171,7 +171,7 @@ def search_face_by_distance(embeddings, tofind, threshold):
 @timed
 def encode_faces(graph, sess, pnet, rnet, onet, image):
     minsize = 20  # minimum size of face
-    threshold = [0.1, 0.6, 0.9]  # three steps's threshold
+    threshold = [0.5, 0.6, 0.9]  # three steps's threshold
     factor = 0.709  # scale factor
     emb_face_size = 160
     tra_face_size = 180
