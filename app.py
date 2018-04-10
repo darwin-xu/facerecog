@@ -83,15 +83,15 @@ def detect_face_d():
     boxes = []
     ids = []
 
-    global threshold
-    if threshold == 0:
-        embs1, embs2, ist = crossCheckDict(embeddings)
-        thresholds = np.arange(0, 4, 0.01)
-        tpr, fpr, accuracy, threshold = facenet.calculate_roc(
-            thresholds, embs1, embs2, np.asarray(ist))
-        print("accuracy: ", accuracy)
-        print("partial thresholds:", threshold)
-        sys.stdout.flush()
+    # global threshold
+    # if threshold == 0:
+    #     embs1, embs2, ist = crossCheckDict(embeddings)
+    #     thresholds = np.arange(0, 4, 0.01)
+    #     tpr, fpr, accuracy, threshold = facenet.calculate_roc(
+    #         thresholds, embs1, embs2, np.asarray(ist))
+    #     print("accuracy: ", accuracy)
+    #     print("partial thresholds:", threshold)
+    #     sys.stdout.flush()
 
     for emb, box, _ in embeddings_boxes:
         id, pos = search_face_by_distance(embeddings, emb, threshold)

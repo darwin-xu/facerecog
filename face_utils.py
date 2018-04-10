@@ -98,7 +98,7 @@ def load_model(modeldir, classifier_filename):
                 sess, '../facenet/src/align')
 
             print('Loading feature extraction model')
-            facenet.load_model(modeldir)
+            # facenet.load_model(modeldir)
 
             model = None
             classifier_filename_exp = os.path.expanduser(classifier_filename)
@@ -171,7 +171,7 @@ def search_face_by_distance(embeddings, tofind, threshold):
 @timed
 def encode_faces(graph, sess, pnet, rnet, onet, image):
     minsize = 20  # minimum size of face
-    threshold = [0.1, 0.6, 0.9]  # three steps's threshold
+    threshold = [0.5, 0.6, 0.9]  # three steps's threshold
     factor = 0.709  # scale factor
     emb_face_size = 160
     tra_face_size = 180
@@ -218,13 +218,14 @@ def encode_faces(graph, sess, pnet, rnet, onet, image):
 
     images = np.stack(emb_img_list)
 
-    images_placeholder = graph.get_tensor_by_name("input:0")
-    embeddings = graph.get_tensor_by_name("embeddings:0")
-    phase_train_placeholder = graph.get_tensor_by_name("phase_train:0")
+    # images_placeholder = graph.get_tensor_by_name("input:0")
+    # embeddings = graph.get_tensor_by_name("embeddings:0")
+    # phase_train_placeholder = graph.get_tensor_by_name("phase_train:0")
 
-    feed_dict = {images_placeholder: images, phase_train_placeholder: False}
-    embs = sess.run(embeddings, feed_dict=feed_dict)
+    # feed_dict = {images_placeholder: images, phase_train_placeholder: False}
+    # embs = sess.run(embeddings, feed_dict=feed_dict)
 
+    embs = np.zeros((1, 128))
     for i in range(len(embs)):
         result.append((embs[i], emb_boxes[i], tra_img_list[i]))
 
