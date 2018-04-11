@@ -196,7 +196,7 @@ def encode_faces(graph, sess, pnet, rnet, onet, image):
     if image.ndim == 2:
         image = facenet.to_rgb(image)
     image = image[:, :, 0:3]
-
+    image_size = np.asarray(image.shape)[0:2]
     bounding_boxes = thumbnailDetect(image, pnet, rnet, onet)
 
     result = []
