@@ -11,10 +11,11 @@ import facenet
 import shutil
 import time
 from flask import Flask, Response, jsonify, make_response, request
-from face_utils import encode_faces, load_model, recong_face_c, generate_response, search_face_by_distance, crossCheckDict, timed
+import face_utils
 from make_classifier import make_classifier
 
 app = Flask(__name__)
+
 
 class JSONNumpyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -36,15 +37,14 @@ threshold = 0
 embedding_dat_path = './embedding.dat'
 embeddings = {}
 model_path = sys.argv[1]
-#model_path = '../models/vggface2-cl'
 img_dir = './images'
 detect_img_dir = './detect_images'
 classifier_filename = './my_classifier.pkl'
 if os.path.exists(embedding_dat_path):
     with open(embedding_dat_path, 'rb') as infile:
         embeddings = pickle.load(infile)
-model, sess, graph, pnet, rnet, onet = load_model(model_path,
-                                                  classifier_filename)
+model, sess, graph, pnet, rnet, onet = face_utils.load_model(
+    model_path, classifier_filename)
 
 
 ########################################################################################
@@ -58,34 +58,37 @@ def save_detect_img(id, img):
     file_name = str(file_num + 1) + '.jpg'
     imageio.imwrite(os.path.join(folder, file_name), img)
 
+
 @app.route('/detectFacesC', methods=['POST'])
-@timed
+@face_utils.timed
 def detect_face_c():
     imgFile = request.files['file']
     img = imageio.imread(imgFile)
-    posbs, bbs, recg_ids = recong_face_c(model, sess, graph, pnet, rnet, onet,
-                                         img)
-    
+    posbs, bbs, recg_ids = face_utils.recong_face_c(model, sess, graph, pnet,
+                                                    rnet, onet, img)
+
     for i in range(len(posbs)):
         img_cropped = img[bbs[i][1]:bbs[i][3], bbs[i][0]:bbs[i][2], :]
         save_img(recg_ids[i], img_cropped, detect_img_dir, posbs[i])
     sys.stdout.flush()
-    return make_response(jsonify(generate_response(posbs, bbs, recg_ids), 201))
+    return make_response(
+        jsonify(face_utils.generate_response(posbs, bbs, recg_ids), 201))
 
 
 @app.route('/detectFacesD', methods=['POST'])
-@timed
+@face_utils.timed
 def detect_face_d():
     imgFile = request.files['file']
     img = imageio.imread(imgFile)
-    embeddings_boxes = encode_faces(graph, sess, pnet, rnet, onet, img)
+    embeddings_boxes = face_utils.encode_faces(graph, sess, pnet, rnet, onet,
+                                               img)
     posbs = []
     boxes = []
     ids = []
 
     global threshold
     if threshold == 0:
-        embs1, embs2, ist = crossCheckDict(embeddings)
+        embs1, embs2, ist = face_utils.crossCheckDict(embeddings)
         thresholds = np.arange(0, 4, 0.01)
         tpr, fpr, accuracy, threshold = facenet.calculate_roc(
             thresholds, embs1, embs2, np.asarray(ist))
@@ -94,14 +97,17 @@ def detect_face_d():
         sys.stdout.flush()
 
     for emb, box, _ in embeddings_boxes:
-        id, pos = search_face_by_distance(embeddings, emb, threshold)
+        id, pos = face_utils.search_face_by_distance(embeddings, emb,
+                                                     threshold)
         posbs.append(pos)
         boxes.append(box)
         ids.append(id)
         img_cropped = img[box[1]:box[3], box[0]:box[2], :]
         save_img(id, img_cropped, detect_img_dir, pos)
     sys.stdout.flush()
-    return make_response(jsonify(generate_response(posbs, boxes, ids), 201))
+    return make_response(
+        jsonify(face_utils.generate_response(posbs, boxes, ids), 201))
+
 
 def save_img(id, img, parent=img_dir, possibility=0):
     if not os.path.exists(parent):
@@ -113,12 +119,14 @@ def save_img(id, img, parent=img_dir, possibility=0):
     file_name = str(file_num + 1) + '_' + str(possibility) + '.jpg'
     imageio.imwrite(os.path.join(folder, file_name), img)
 
+
 @app.route('/registerFace/<string:id>', methods=['POST'])
-@timed
+@face_utils.timed
 def register_face(id):
     img_file = request.files['file']
     img = imageio.imread(img_file)
-    embeddings_boxes = encode_faces(graph, sess, pnet, rnet, onet, img)
+    embeddings_boxes = face_utils.encode_faces(graph, sess, pnet, rnet, onet,
+                                               img)
     sys.stdout.flush()
     if len(embeddings_boxes) != 1:
         return make_response(jsonify({'error': 'invalid image'}), 403)
@@ -134,12 +142,14 @@ def register_face(id):
             pickle.dump(embeddings, outfile)
         return make_response(jsonify({'ok': 'ok'}), 201)
 
+
 @app.route('/registerFaces/<string:id>', methods=['POST'])
-@timed
+@face_utils.timed
 def register_faces(id):
     img_file = request.files['file']
     img = imageio.imread(img_file)
-    embeddings_boxes = encode_faces(graph, sess, pnet, rnet, onet, img)
+    embeddings_boxes = face_utils.encode_faces(graph, sess, pnet, rnet, onet,
+                                               img)
     sys.stdout.flush()
     if len(embeddings_boxes) != 1:
         return make_response(jsonify({'error': 'invalid image'}), 403)
@@ -153,43 +163,49 @@ def register_faces(id):
         embeddings[id].append(embeddings_boxes[0][0])
         return make_response(jsonify({'ok': 'ok'}), 201)
 
+
 @app.route('/registerFacesDone', methods=['POST'])
-@timed
+@face_utils.timed
 def register_faces_done():
     with open(embedding_dat_path, 'wb') as outfile:
         pickle.dump(embeddings, outfile)
     return make_response(jsonify({'ok': 'ok'}), 201)
 
+
 @app.route('/classifyFace', methods=['POST'])
-@timed
+@face_utils.timed
 def classify_face():
     global model
     model = make_classifier(sess, graph, embeddings, classifier_filename)
     sys.stdout.flush()
     return make_response(jsonify({'ok': 'ok'}), 201)
 
+
 @app.route('/classifyFace_rbf', methods=['POST'])
-@timed
+@face_utils.timed
 def classify_face_rbf():
     global model
     model = make_classifier(sess, graph, embeddings, classifier_filename,
                             'rbf')
     return make_response(jsonify({'ok': 'ok'}), 201)
 
+
 @app.route('/evolve', methods=['POST'])
-@timed
+@face_utils.timed
 def evolve():
     global model
     model = make_classifier(sess, graph, embeddings, classifier_filename)
     return make_response(jsonify({'ok': 'ok'}), 201)
 
+
 @app.route('/getIds', methods=['GET'])
-@timed
+@face_utils.timed
 def get_ids():
     return json.dumps(list(model.classes_))
 
+
 @app.route('/removeFace', methods=['DELETE'])
-@timed
+@face_utils.timed
 def remove_faces():
     global embeddings
     embeddings = {}
@@ -201,8 +217,9 @@ def remove_faces():
 
     return make_response(jsonify({'ok': 'ok'}), 201)
 
+
 @app.route('/removeFace/<string:id>', methods=['DELETE'])
-@timed
+@face_utils.timed
 def remove_face(id):
     global embeddings
     if id in embeddings:
@@ -215,6 +232,7 @@ def remove_face(id):
             shutil.rmtree(id_dir)
         return make_response(jsonify({'ok': 'ok'}), 201)
     return make_response(jsonify({'error': 'invalid id'}), 403)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=False, threaded=True, use_reloader=False)

@@ -18,17 +18,18 @@ while (True):
 
     # Capture frame-by-frame
     ret, frame = cap.read()
-    
-    frame = cv2.resize(frame, (0,0), fx=0.5, fy=0.5)    #resize frame (optional)
+
+    frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  #resize frame (optional)
 
     key = cv2.waitKey(1)
     if key & 0xFF == ord('c'):
         last = now
+        m1 = int(round(time.time() * 1000))
         jpg = cv2.imencode('.jpg', frame)[1].tostring()
         files = {'file': jpg}
         response = requests.post(base_uri + detect_uri, files=files)
-        m3 = int(round(time.time() * 1000))
-        print ("get response cost: " + str(m3 - last) + " milliseconds")
+        m2 = int(round(time.time() * 1000))
+        print("get response cost: " + str(m2 - m1) + " milliseconds")
 
         if response.ok:
             result = json.loads(response.content.decode('utf-8'))
