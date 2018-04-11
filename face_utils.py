@@ -175,11 +175,21 @@ def search_face_by_distance(embeddings, tofind, threshold):
     return min_id, min_dist
 
 
-@timed
-def encode_faces(graph, sess, pnet, rnet, onet, image):
+def thumbnailDetect(image, pnet, rnet, onet):
     minsize = 20  # minimum size of face
     threshold = [0.5, 0.6, 0.9]  # three steps's threshold
     factor = 0.709  # scale factor
+    shrink = 0.3
+
+    thumbnail = misc.imresize(image, shrink, interp='bilinear')
+
+    bounding_boxes, _ = detect_face.detect_face(thumbnail, minsize, pnet, rnet,
+                                                onet, threshold, factor)
+    return bounding_boxes / shrink
+
+
+@timed
+def encode_faces(graph, sess, pnet, rnet, onet, image):
     emb_face_size = 160
     tra_face_size = 180
 
@@ -187,9 +197,7 @@ def encode_faces(graph, sess, pnet, rnet, onet, image):
         image = facenet.to_rgb(image)
     image = image[:, :, 0:3]
 
-    image_size = np.asarray(image.shape)[0:2]
-    bounding_boxes, _ = detect_face.detect_face(image, minsize, pnet, rnet,
-                                                onet, threshold, factor)
+    bounding_boxes = thumbnailDetect(image, pnet, rnet, onet)
 
     result = []
     nrof_faces = bounding_boxes.shape[0]

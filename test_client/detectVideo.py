@@ -19,7 +19,7 @@ while (True):
     # Capture frame-by-frame
     ret, frame = cap.read()
 
-    frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  #resize frame (optional)
+    #frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  #resize frame (optional)
 
     key = cv2.waitKey(1)
     if key & 0xFF == ord('c'):
