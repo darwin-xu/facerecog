@@ -11,19 +11,26 @@ cap = cv2.VideoCapture(0)
 
 detecting = False
 
+def putText(frame, text, point, scale):
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(frame, text, point, font, scale, (0, 0, 0), 2, cv2.LINE_AA)
+    cv2.putText(frame, text, point, font, scale, (255, 255, 255), 1, cv2.LINE_AA)
+
 while (True):
     # Capture frame-by-frame
     _, frame = cap.read()
 
-    key = cv2.waitKey(1)
+    key = cv2.waitKey(1) & 0xFF
 
-    if key & 0xFF == ord('d'):
+    if key == ord('d') or key == ord('D'):
         detecting = True
-    elif key & 0xFF == ord('s'):
+    elif key == ord('s') or key == ord('S'):
         detecting = False
-    elif key & 0xFF == ord('q'):
+    elif key == ord('q') or key == ord('Q'):
         break
 
+    putText(frame, "Press 'd' to start detect. Press 's' to stop detect. Press 'q' to quit", (0, 20), 0.5)
+                            
     if detecting:
         jpg = cv2.imencode('.jpg', frame)[1].tostring()
         files = {'file': jpg}
@@ -33,10 +40,8 @@ while (True):
             for f in result[0]["faces"]:
                 cv2.rectangle(frame, (f["x1"], f["y1"]), (f["x2"], f["y2"]),
                               (0, 0, 255), 2)
-                font = cv2.FONT_HERSHEY_SIMPLEX
                 # Add name on top of the rectangle
-                cv2.putText(frame, f["id"], (f["x1"], f["y2"] + 30), font, 1,
-                            (255, 255, 255), 1, cv2.LINE_AA)
+                putText(frame, f["id"], (f["x1"], f["y2"] + 30), 0.7)
 
     cv2.imshow('frame', frame)
 
