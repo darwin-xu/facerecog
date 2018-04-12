@@ -1,17 +1,17 @@
-#!flask/bin/python
-import sys
-import os.path
-import os
-# os.environ["CUDA_VISIBLE_DEVICES"]="-1"
-import pickle
-import numpy as np
 import json
-import imageio
-import facenet
+import os
+import os.path
+import pickle
 import shutil
+import sys
 import time
+
+import imageio
+import numpy as np
 from flask import Flask, Response, jsonify, make_response, request
+
 import face_utils
+import facenet
 from make_classifier import make_classifier
 
 app = Flask(__name__)

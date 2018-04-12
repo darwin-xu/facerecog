@@ -1,27 +1,27 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-import os.path
-from sys import argv
-import tensorflow as tf
-from scipy import misc
-import matplotlib.pyplot as plt
-import numpy as np
 import argparse
-import facenet
-import detect_face
+import copy
+import math
 import os
-from os.path import join as pjoin
+import os.path
+import pickle
 import sys
 import time
 from functools import wraps
-import copy
-import math
-import pickle
-from sklearn.svm import SVC
-from sklearn.externals import joblib
+from os.path import join as pjoin
+from sys import argv
+
+import matplotlib.pyplot as plt
+import numpy as np
 import scipy
+import tensorflow as tf
+from scipy import misc
+from sklearn.externals import joblib
+from sklearn.svm import SVC
+
+import detect_face
+import facenet
 
 
 def timed(f):
@@ -30,7 +30,7 @@ def timed(f):
         start = time.time()
         result = f(*args, **kwds)
         elapsed = time.time() - start
-        print("%s took %f second to finish" % (f.__name__, elapsed))
+        print("%s took %.3f second to finish" % (f.__name__, elapsed))
         return result
 
     return wrapper
@@ -116,10 +116,7 @@ def load_model(modeldir, classifier_filename):
 
 @timed
 def recong_face_c(model, sess, graph, pnet, rnet, onet, image):
-    now = int(round(time.time() * 1000))
     result = encode_faces(graph, sess, pnet, rnet, onet, image)
-    last = int(round(time.time() * 1000))
-    print("detect face cost: " + str(last - now) + " milliseconds")
     # print ("the result array's shape: " + str(emb_array.shape))
     pos = []
     bbs = []
@@ -144,8 +141,6 @@ def recong_face_c(model, sess, graph, pnet, rnet, onet, image):
             pos.append(best_class_probabilities)
             bbs.append(bb)
             rec_ids.append(model.classes_[posibs[1]])
-    print("recong face c cost: " + str(int(round(time.time() * 1000)) - last) +
-          " milliseconds")
     return pos, bbs, rec_ids
 
 
@@ -158,7 +153,7 @@ def distance(emb1, emb2):
 def search_face_by_distance(embeddings, tofind, threshold):
     min_dist = 1000.0
     min_id = ''
-    #threshold = 0.51
+
     for id, embs in embeddings.items():
         for emb in embs:
             dist = distance(emb, tofind)
@@ -186,6 +181,29 @@ def thumbnailDetect(image, pnet, rnet, onet):
     bounding_boxes, _ = detect_face.detect_face(thumbnail, minsize, pnet, rnet,
                                                 onet, threshold, factor)
     return bounding_boxes / shrink
+
+
+def computeEmbedding(graph, sess, images, batch_size=100):
+    images_placeholder = graph.get_tensor_by_name("input:0")
+    embeddings = graph.get_tensor_by_name("embeddings:0")
+    phase_train_placeholder = graph.get_tensor_by_name("phase_train:0")
+
+    embedding_size = embeddings.get_shape()[1]
+    nrof_images = len(images)
+    emb_array = np.zeros((nrof_images, embedding_size))
+    nrof_batches = int(math.ceil(1.0 * nrof_images / batch_size))
+
+    for i in range(nrof_batches):
+        start_index = i * batch_size
+        end_index = min((i + 1) * batch_size, nrof_images)
+        feed_dict = {
+            images_placeholder: images[start_index:end_index],
+            phase_train_placeholder: False
+        }
+        emb_array[start_index:end_index, :] = sess.run(
+            embeddings, feed_dict=feed_dict)
+
+    return emb_array
 
 
 @timed

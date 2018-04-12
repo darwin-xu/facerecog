@@ -303,7 +303,7 @@ def detect_face(img, minsize, pnet, rnet, onet, threshold, factor):
     # threshold: threshold=[th1 th2 th3], th1-3 are three steps's threshold
     # fastresize: resize img from last scale (using in high-resolution images) if fastresize==true
     start = time.time()
-    print ("enter detect_face")
+    #print ("enter detect_face")
     factor_count=0
     total_boxes=np.empty((0,9))
     points=[]
@@ -321,7 +321,7 @@ def detect_face(img, minsize, pnet, rnet, onet, threshold, factor):
 
     cost = time.time() - start
     pre_cost = cost
-    print ("create scale pyramid cost: " + str(cost) + "seconds")
+    #print ("create scale pyramid cost: " + str(cost) + "seconds")
     # first stage
     for j in range(len(scales)):
         scale=scales[j]
@@ -347,7 +347,7 @@ def detect_face(img, minsize, pnet, rnet, onet, threshold, factor):
 
     cost = time.time() - start - pre_cost
     pre_cost += cost
-    print ("first stage cost: " + str(cost) + "seconds")
+    #print ("first stage cost: " + str(cost) + "seconds")
     if numbox>0:
         pick = nms(total_boxes.copy(), 0.7, 'Union')
         total_boxes = total_boxes[pick,:]
@@ -392,7 +392,7 @@ def detect_face(img, minsize, pnet, rnet, onet, threshold, factor):
 
     cost = time.time() - start - pre_cost
     pre_cost += cost
-    print ("second stage cost: " + str(cost) + "seconds")
+    #print ("second stage cost: " + str(cost) + "seconds")
 
     if numbox>0:
         # third stage
@@ -431,7 +431,7 @@ def detect_face(img, minsize, pnet, rnet, onet, threshold, factor):
                 
     cost = time.time() - start - pre_cost
     pre_cost += cost
-    print ("third stage cost: " + str(cost) + "seconds")
+    #print ("third stage cost: " + str(cost) + "seconds")
     
     return total_boxes, points
 
