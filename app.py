@@ -36,15 +36,30 @@ global model, sess, graph, embeddings, img_dir
 threshold = 0
 embedding_dat_path = './embedding.dat'
 embeddings = {}
-model_path = sys.argv[1]
-img_dir = './images'
-detect_img_dir = './detect_images'
+model_path = os.path.abspath(sys.argv[1])
+model_name = os.path.basename(model_path)
 classifier_filename = './my_classifier.pkl'
-if os.path.exists(embedding_dat_path):
-    with open(embedding_dat_path, 'rb') as infile:
-        embeddings = pickle.load(infile)
 model, sess, graph, pnet, rnet, onet = face_utils.load_model(
     model_path, classifier_filename)
+
+img_dir = './images'
+detect_img_dir = './detect_images'
+emb_model_name = ''
+if os.path.exists(embedding_dat_path):
+    with open(embedding_dat_path, 'rb') as infile:
+        try:
+            embeddings = pickle.load(infile)
+            emb_model_name = pickle.load(infile)
+        except EOFError:
+            pass
+if model_name != emb_model_name:
+    print('Embedding is not compatible with the model, recalculate.')
+    embeddings = face_utils.freshEmbedding(graph, sess, img_dir)
+    with open(embedding_dat_path, 'wb') as outfile:
+        pickle.dump(embeddings, outfile)
+        pickle.dump(model_name, outfile)
+else:
+    print('Embedding is compatible with the model.')
 
 
 ########################################################################################
@@ -90,7 +105,7 @@ def detect_face_d():
     if threshold == 0:
         embs1, embs2, ist = face_utils.crossCheckDict(embeddings)
         thresholds = np.arange(0, 4, 0.01)
-        tpr, fpr, accuracy, threshold = facenet.calculate_roc(
+        _, _, accuracy, threshold = facenet.calculate_roc(
             thresholds, embs1, embs2, np.asarray(ist))
         print("accuracy: ", accuracy)
         print("partial thresholds:", threshold)
@@ -140,6 +155,7 @@ def register_face(id):
         embeddings[id].append(embeddings_boxes[0][0])
         with open(embedding_dat_path, 'wb') as outfile:
             pickle.dump(embeddings, outfile)
+            pickle.dump(model_name, outfile)
         return make_response(jsonify({'ok': 'ok'}), 201)
 
 
@@ -169,6 +185,7 @@ def register_faces(id):
 def register_faces_done():
     with open(embedding_dat_path, 'wb') as outfile:
         pickle.dump(embeddings, outfile)
+        pickle.dump(model_name, outfile)
     return make_response(jsonify({'ok': 'ok'}), 201)
 
 
@@ -226,6 +243,7 @@ def remove_face(id):
         del embeddings[id]
         with open(embedding_dat_path, 'wb') as outfile:
             pickle.dump(embeddings, outfile)
+            pickle.dump(model_name, outfile)
 
         id_dir = os.path.join(img_dir, id)
         if os.path.exists(id_dir):

@@ -145,7 +145,7 @@ def recong_face_c(model, sess, graph, pnet, rnet, onet, image):
 
 
 def distance(emb1, emb2):
-    dist = np.sqrt(np.sum(np.square(np.subtract(emb1, emb2))))
+    dist = np.sum(np.square(np.subtract(emb1, emb2)))
     return dist
 
 
@@ -251,17 +251,35 @@ def encode_faces(graph, sess, pnet, rnet, onet, image):
 
     images = np.stack(emb_img_list)
 
-    images_placeholder = graph.get_tensor_by_name("input:0")
-    embeddings = graph.get_tensor_by_name("embeddings:0")
-    phase_train_placeholder = graph.get_tensor_by_name("phase_train:0")
-
-    feed_dict = {images_placeholder: images, phase_train_placeholder: False}
-    embs = sess.run(embeddings, feed_dict=feed_dict)
+    embs = computeEmbedding(graph, sess, images)
 
     for i in range(len(embs)):
         result.append((embs[i], emb_boxes[i], tra_img_list[i]))
 
     return result
+
+
+def freshEmbedding(graph, sess, pathOfImage):
+    imageIds = [
+        folder for folder in os.listdir(pathOfImage)
+        if os.path.isdir(os.path.join(pathOfImage, folder))
+    ]
+
+    embeddings = {}
+
+    for id in imageIds:
+        imageFolder = os.path.join(pathOfImage, id)
+        imagePaths = [
+            os.path.join(imageFolder, file) for file in os.listdir(imageFolder)
+            if os.path.isfile(os.path.join(imageFolder, file))
+        ]
+        images = facenet.load_data(imagePaths, False, False, 160)
+        embs = computeEmbedding(graph, sess, images)
+        embeddings[id] = []
+        for emb in embs:
+            embeddings[id].append(emb)
+
+    return embeddings
 
 
 def generate_response(posbs, bbs, recg_ids):
