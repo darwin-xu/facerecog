@@ -149,6 +149,12 @@ def distance(emb1, emb2):
     return dist
 
 
+def distance2Possibility(distance, threshold):
+    p = 2
+    a = 0.4 / threshold**p
+    return max(1 - a * distance**p, 0)
+
+
 @timed
 def search_face_by_distance(embeddings, tofind, threshold):
     min_dist = 1000.0
@@ -161,13 +167,13 @@ def search_face_by_distance(embeddings, tofind, threshold):
                 min_dist = dist
                 min_id = id
 
-    posi = 0
+    poss = 0
     if (min_dist < threshold):
-        posi = 1 - min_dist / threshold
+        poss = distance2Possibility(min_dist, threshold)
     else:
-        min_id = "unknown"
+        min_id = ""
 
-    return min_id, min_dist
+    return min_id, poss
 
 
 def thumbnailDetect(image, pnet, rnet, onet):
