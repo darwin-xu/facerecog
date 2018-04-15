@@ -53,13 +53,14 @@ if os.path.exists(embedding_dat_path):
         except EOFError:
             pass
 if model_name != emb_model_name:
-    print('Embedding is not compatible with the model, recalculate.')
+    print(
+        'Embedding is not compatible with the model, recalculate.', flush=True)
     embeddings = face_utils.freshEmbedding(graph, sess, img_dir)
     with open(embedding_dat_path, 'wb') as outfile:
         pickle.dump(embeddings, outfile)
         pickle.dump(model_name, outfile)
 else:
-    print('Embedding is compatible with the model.')
+    print('Embedding is compatible with the model.', flush=True)
 
 
 ########################################################################################

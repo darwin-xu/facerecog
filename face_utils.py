@@ -255,12 +255,13 @@ def encode_faces(graph, sess, pnet, rnet, onet, image):
         emb_img_list.append(prewhitened)
         tra_img_list.append(tra_aligned)
 
-    images = np.stack(emb_img_list)
+    if len(emb_img_list) > 0:
+        images = np.stack(emb_img_list)
 
-    embs = computeEmbedding(graph, sess, images)
+        embs = computeEmbedding(graph, sess, images)
 
-    for i in range(len(embs)):
-        result.append((embs[i], emb_boxes[i], tra_img_list[i]))
+        for i in range(len(embs)):
+            result.append((embs[i], emb_boxes[i], tra_img_list[i]))
 
     return result
 
