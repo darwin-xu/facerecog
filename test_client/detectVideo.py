@@ -10,7 +10,7 @@ detect_uri = '/detectFacesD'
 cap = cv2.VideoCapture(0)
 
 detecting = False
-
+showPoss = True
 
 def putText(frame, text, point, scale):
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -26,16 +26,21 @@ while (True):
     key = cv2.waitKey(1) & 0xFF
 
     if key == ord('d') or key == ord('D'):
-        detecting = True
-    elif key == ord('s') or key == ord('S'):
-        detecting = False
+        detecting = not detecting
+    elif key == ord('p') or key == ord('P'):
+        showPoss = not showPoss
     elif key == ord('q') or key == ord('Q'):
         break
 
     putText(
         frame,
-        "Press 'd' to start detect. Press 's' to stop detect. Press 'q' to quit",
+        "Press 'd' to toggle face detection. Press 'p' to toggle possibility.",
         (0, 20), 0.5)
+
+    putText(
+        frame,
+        "Press 'q' to quit",
+        (0, 40), 0.5)
 
     if detecting:
         jpg = cv2.imencode('.jpg', frame)[1].tostring()
@@ -49,7 +54,7 @@ while (True):
                 # Add name on top of the rectangle
                 poss = f["possibility"] * 100
                 if poss >= 60:
-                    tag = f["id"] + f' {poss:.1f}%'
+                    tag = f["id"] + (f' {poss:.1f}%' if showPoss else '')
                 else:
                     tag = 'unknown'
                 putText(frame, tag, (f["x1"], f["y2"] + 30), 0.7)
