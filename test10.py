@@ -14,33 +14,37 @@ with graph.as_default():
         pnet, rnet, onet = detect_face.create_mtcnn(sess,
                                                     '../facenet/src/align')
 
-        pt = 0.5
-        rt = 0.6
-        ot = 0.9
-        shrink = 1
-        step = 0.3
+        pt = 0.6
+        rt = 0.7
+        ot = 0.7
+        shrink = 1.0
+        step = 0.1
+        minsize = 20
 
         while True:
             image = cv2.imread(sys.argv[1])
             forshow = misc.imresize(image, 0.5, interp='bilinear')
 
-            minsize = 20
             threshold = [pt, rt, ot]
-            print(threshold)
+            print("threshold", threshold, "shrink", shrink, "minsize", minsize)
             factor = 0.709
+            sys.stdout.flush()
 
-            # thumbnail = misc.imresize(
-            #     image[:, :, ::-1], shrink, interp='bilinear')
+            thumbnail = misc.imresize(
+                image[:, :, ::-1], shrink, interp='bilinear')
             b = time.time()
             bounding_boxes, _ = detect_face.detect_face(
-                image[:, :, ::-1], minsize, pnet, rnet, onet, threshold, factor)
+                thumbnail, minsize, pnet, rnet, onet, threshold, factor)
             e = time.time()
             bounding_boxes = bounding_boxes / shrink * 0.5
             e = time.time()
             print('%.3f second' % (e - b))
+            sys.stdout.flush()
 
             size = image.shape[0:2]
             print(bounding_boxes.shape)
+            sys.stdout.flush()
+
             for x1, y1, x2, y2, _ in bounding_boxes:
                 x1 = int(max(x1, 0))
                 y1 = int(max(y1, 0))
@@ -64,9 +68,19 @@ with graph.as_default():
                 ot -= step
             elif key == ord('c'):
                 ot += step
+            elif key == ord('f'):
+                shrink -= step
+            elif key == ord('v'):
+                shrink += step
+            elif key == ord('g'):
+                minsize -= 10
+            elif key == ord('b'):
+                minsize += 10
             elif key == ord('q'):
                 quit()
-            elif key == ord('q'):
+            elif key == ord('r'):
                 pass
+
+            sys.stdout.flush()
 
             cv2.destroyAllWindows()
