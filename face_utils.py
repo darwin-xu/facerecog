@@ -30,7 +30,9 @@ def timed(f):
         start = time.time()
         result = f(*args, **kwds)
         elapsed = time.time() - start
-        print("%s took %.3f second to finish" % (f.__name__, elapsed))
+        print(
+            "%s took %.3f second to finish" % (f.__name__, elapsed),
+            flush=True)
         return result
 
     return wrapper
@@ -177,16 +179,13 @@ def search_face_by_distance(embeddings, tofind, threshold):
 
 
 def thumbnailDetect(image, pnet, rnet, onet):
-    minsize = 20  # minimum size of face
-    threshold = [0.5, 0.6, 0.9]  # three steps's threshold
+    minsize = 200  # minimum size of face
+    threshold = [0.6, 0.7, 0.7]  # three steps's threshold
     factor = 0.709  # scale factor
-    shrink = 0.3
 
-    thumbnail = misc.imresize(image, shrink, interp='bilinear')
-
-    bounding_boxes, _ = detect_face.detect_face(thumbnail, minsize, pnet, rnet,
+    bounding_boxes, _ = detect_face.detect_face(image, minsize, pnet, rnet,
                                                 onet, threshold, factor)
-    return bounding_boxes / shrink
+    return bounding_boxes
 
 
 def computeEmbedding(graph, sess, images, batch_size=100):
