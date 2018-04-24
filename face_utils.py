@@ -179,10 +179,11 @@ def search_face_by_distance(embeddings, tofind, threshold):
 
 
 def thumbnailDetect(image, pnet, rnet, onet):
-    minsize = 200  # minimum size of face
+    image_size = np.asarray(image.shape)[0:2]
+    minsize = image_size[0] * 0.07  # minimum size of face
+    minsize = 20 if minsize < 20 else minsize
     threshold = [0.6, 0.7, 0.7]  # three steps's threshold
     factor = 0.709  # scale factor
-
     bounding_boxes, _ = detect_face.detect_face(image, minsize, pnet, rnet,
                                                 onet, threshold, factor)
     return bounding_boxes
