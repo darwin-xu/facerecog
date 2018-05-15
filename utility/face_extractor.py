@@ -27,6 +27,37 @@ def getDestPathAndFilename(filename, destName):
     return (dest, name)
 
 
+def cutBoxFromImage(box, image, enlarge=2):
+    """ Cut a box from a image with enlarge ratio.
+        if the enlarged box is out of the bound of the image.
+        random data will be filled.
+    """
+    imageSize = image.shape[0:2]
+
+    w = box[2] - box[0]
+    h = box[3] - box[1]
+
+    x1 = int(box[0] - w / 2)
+    x2 = int(box[2] + w / 2)
+    y1 = int(box[1] - h / 2)
+    y2 = int(box[3] + h / 2)
+
+    img = np.random.rand(y2 - y1, x2 - x1)
+
+    left = 0 if (0 - x1 >= 0) else (0 - x1)
+    right = 0 if (imageSize[1] - x2 >= 0) else (imageSize[1] - x2)
+    top = 0 if (0 - y1 >= 0) else (0 - y1)
+    bottom = 0 if (imageSize[0] - y2 >= 0) else (imageSize[0] - y2)
+
+    x1 = max(x1, 0)
+    y1 = max(y1, 0)
+    x2 = min(x2, imageSize[1])
+    y2 = min(y2, imageSize[0])
+
+    img[:,]
+
+
+
 def extractFace(imageName, params):
     # Create the folder to save the face images.
     path, filename = getDestPathAndFilename(imageName, 'labeled_faces')
