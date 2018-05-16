@@ -34,28 +34,35 @@ def cutBoxFromImage(box, image, enlarge=2):
     """
     imageSize = image.shape[0:2]
 
+    # Get the width and height of the box
     w = box[2] - box[0]
     h = box[3] - box[1]
 
+    # Calculate the enlarged bound of the box, maybe cross the border of the image
     x1 = int(box[0] - w / 2)
     x2 = int(box[2] + w / 2)
     y1 = int(box[1] - h / 2)
     y2 = int(box[3] + h / 2)
 
-    img = np.random.rand(y2 - y1, x2 - x1)
+    # Initial a random array
+    img = np.random.rand(y2 - y1, x2 - x1, image.shape[2])
 
+    # Calculate the inner margin in the enlarge box
     left = 0 if (0 - x1 >= 0) else (0 - x1)
-    right = 0 if (imageSize[1] - x2 >= 0) else (imageSize[1] - x2)
+    right = (x2 - x1) if (imageSize[1] - x2 >= 0) else (y2 - y1 -
+                                                        (imageSize[1] - x2))
     top = 0 if (0 - y1 >= 0) else (0 - y1)
-    bottom = 0 if (imageSize[0] - y2 >= 0) else (imageSize[0] - y2)
+    bottom = (y2 - y1) if (imageSize[0] - y2 >= 0) else (y2 - y1 -
+                                                         (imageSize[0] - y2))
 
+    # Adjust the clipping area
     x1 = max(x1, 0)
     y1 = max(y1, 0)
     x2 = min(x2, imageSize[1])
     y2 = min(y2, imageSize[0])
 
-    img[:,]
-
+    img[top:bottom, left:right, :] = image[y1:y2, x1:y2, :]
+    return img
 
 
 def extractFace(imageName, params):
@@ -65,17 +72,12 @@ def extractFace(imageName, params):
         os.makedirs(path)
     try:
         image = imageio.imread(imageName)
-        imageSize = image.shape[0:2]
         bounding_boxes, _ = detect_face.detect_face(
             image, params[0], params[3], params[4], params[5], params[1],
             params[2])
         i = 0
         for box in bounding_boxes:
-            x1 = int(max(box[0], 0))
-            y1 = int(max(box[1], 0))
-            x2 = int(min(box[2], imageSize[1]))
-            y2 = int(min(box[3], imageSize[0]))
-            face = image[y1:y2, x1:x2, :]
+            face = cutBoxFromImage(box, image)
             outImageName = os.path.join(path, filename + '_' + str(i) + '.png')
             i += 1
             print('Save to' + outImageName)
