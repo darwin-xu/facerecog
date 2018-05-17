@@ -33,12 +33,14 @@ def enlargeBox(box, imageSize, enlarge):
     hExt = (box[2] - box[0]) * enlarge
     vExt = (box[3] - box[1]) * enlarge
 
+    w = int(round((box[2] - box[0]) + hExt))
+    h = int(round((box[3] - box[1]) + vExt))
+
     # Calculate the enlarged bound of the box, maybe cross the border of the image
-    x1 = int(box[0] - hExt / 2)
-    x2 = int(box[2] + hExt / 2)
-    y1 = int(box[1] - vExt / 2)
-    y2 = int(box[3] + vExt / 2)
-    print('x1,x2,y1,y2', x1, x2, y1, y2)
+    x1 = int(round(box[0] - hExt / 2))
+    x2 = int(round(box[2] + hExt / 2))
+    y1 = int(round(box[1] - vExt / 2))
+    y2 = int(round(box[3] + vExt / 2))
 
     # Calculate the inner margin in the enlarge box
     left = 0 if (0 <= x1) else (0 - x1)
@@ -47,8 +49,6 @@ def enlargeBox(box, imageSize, enlarge):
     top = 0 if (0 <= y1) else (0 - y1)
     bottom = (y2 - y1) if (y2 <=
                            imageSize['height']) else (imageSize['height'] - y1)
-
-    print('left, right, top, bottom', left, right, top, bottom)
 
     # Adjust the clipping area
     x1 = max(x1, 0)
@@ -64,7 +64,9 @@ def enlargeBox(box, imageSize, enlarge):
         'x1': x1,
         'y1': y1,
         'x2': x2,
-        'y2': y2
+        'y2': y2,
+        'w': w,
+        'h': h
     }
 
 
@@ -76,18 +78,26 @@ def cutBoxFromImage(box, image, enlarge=2):
 
     params = enlargeBox(box, {
         'width': image.shape[0:2][1],
-        'height': image.shape[0:2][1]
+        'height': image.shape[0:2][0]
     }, enlarge)
 
     # Get the result out of the params
     left, top, right, bottom = params['left'], params['top'], params[
         'right'], params['bottom']
     x1, y1, x2, y2 = params['x1'], params['y1'], params['x2'], params['y2']
+    w, h = params['w'], params['h']
+
+    print(box)
+    print(params)
+    print(image.shape[0:2])
 
     # Initial a random array
-    img = np.random.rand(y2 - y1, x2 - x1, image.shape[2])
+    img = np.random.randint(0, 255, (h, w, image.shape[2]), np.uint8)
 
     # Cut the face out of the image
+    print(bottom - top, right - left, '-', y2 - y1, x2 - x1)
+    print(img.shape)
+    print(image.shape)
     img[top:bottom, left:right, :] = image[y1:y2, x1:x2, :]
 
     return img
@@ -100,18 +110,19 @@ def extractFace(imageName, params):
         os.makedirs(path)
     try:
         image = imageio.imread(imageName)
-        bounding_boxes, _ = detect_face.detect_face(
-            image, params[0], params[3], params[4], params[5], params[1],
-            params[2])
-        i = 0
-        for box in bounding_boxes:
-            face = cutBoxFromImage(box, image)
-            outImageName = os.path.join(path, filename + '_' + str(i) + '.png')
-            i += 1
-            print('Save to' + outImageName)
-            imageio.imsave(outImageName, face)
     except ValueError:
-        pass
+        return
+    print('read image ok', imageName)
+    bounding_boxes, _ = detect_face.detect_face(image, params[0], params[3],
+                                                params[4], params[5],
+                                                params[1], params[2])
+    i = 0
+    for box in bounding_boxes:
+        face = cutBoxFromImage(box, image)
+        outImageName = os.path.join(path, filename + '_' + str(i) + '.png')
+        i += 1
+        print('Save to' + outImageName)
+        imageio.imsave(outImageName, face)
 
 
 if __name__ == '__main__':
