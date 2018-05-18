@@ -15,7 +15,7 @@ import PIL
 import tensorflow as tf
 from PIL import ImageEnhance
 from scipy import misc, ndimage
-
+sys.path.append('C:\\Users\\edaiwxu\\Documents\\projects\\facerecog')
 import detect_face
 
 
@@ -33,14 +33,15 @@ def enlargeBox(box, imageSize, enlarge):
     hExt = (box[2] - box[0]) * enlarge
     vExt = (box[3] - box[1]) * enlarge
 
-    w = int(round((box[2] - box[0]) + hExt))
-    h = int(round((box[3] - box[1]) + vExt))
-
     # Calculate the enlarged bound of the box, maybe cross the border of the image
     x1 = int(round(box[0] - hExt / 2))
     x2 = int(round(box[2] + hExt / 2))
     y1 = int(round(box[1] - vExt / 2))
     y2 = int(round(box[3] + vExt / 2))
+
+    # Calculate the width and height of targe box
+    w = x2 - x1
+    h = y2 - y1
 
     # Calculate the inner margin in the enlarge box
     left = 0 if (0 <= x1) else (0 - x1)
@@ -70,7 +71,7 @@ def enlargeBox(box, imageSize, enlarge):
     }
 
 
-def cutBoxFromImage(box, image, enlarge=2):
+def cutBoxFromImage(box, image, enlarge=1):
     """ Cut a box from a image with enlarge ratio.
         if the enlarged box is out of the bound of the image.
         random data will be filled.
@@ -87,17 +88,10 @@ def cutBoxFromImage(box, image, enlarge=2):
     x1, y1, x2, y2 = params['x1'], params['y1'], params['x2'], params['y2']
     w, h = params['w'], params['h']
 
-    print(box)
-    print(params)
-    print(image.shape[0:2])
-
     # Initial a random array
     img = np.random.randint(0, 255, (h, w, image.shape[2]), np.uint8)
 
     # Cut the face out of the image
-    print(bottom - top, right - left, '-', y2 - y1, x2 - x1)
-    print(img.shape)
-    print(image.shape)
     img[top:bottom, left:right, :] = image[y1:y2, x1:x2, :]
 
     return img
@@ -108,11 +102,15 @@ def extractFace(imageName, params):
     path, filename = getDestPathAndFilename(imageName, 'labeled_faces')
     if not os.path.exists(path):
         os.makedirs(path)
+
     try:
         image = imageio.imread(imageName)
     except ValueError:
         return
-    print('read image ok', imageName)
+
+    if image.shape[0] < 20 or image.shape[1] < 20 or image.shape[2] != 3:
+        return
+
     bounding_boxes, _ = detect_face.detect_face(image, params[0], params[3],
                                                 params[4], params[5],
                                                 params[1], params[2])
@@ -121,7 +119,7 @@ def extractFace(imageName, params):
         face = cutBoxFromImage(box, image)
         outImageName = os.path.join(path, filename + '_' + str(i) + '.png')
         i += 1
-        print('Save to' + outImageName)
+        print('Save to', outImageName.encode('utf-8'))
         imageio.imsave(outImageName, face)
 
 
